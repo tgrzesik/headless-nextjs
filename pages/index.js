@@ -10,7 +10,7 @@ export default function Home() {
 
       <main>
         <h1 className="title">
-          Welcome to DIARMUID
+          Welcome to DIARMUID version 1
         </h1>
 
         <p className="description">
