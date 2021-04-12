@@ -14,7 +14,7 @@ export default function Home() {
         </h1>
 
         <p className="description">
-          Version 3
+          Version 4
         </p>
 
         <div className="grid">
