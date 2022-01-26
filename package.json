@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "wpe-build": "next build",
+    "wpe-build": "unshare -r",
     "start": "next start -p 8080"
   },
   "dependencies": {
