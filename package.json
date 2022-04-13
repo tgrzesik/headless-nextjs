@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@faustjs/next": "^0.15.5",
-    "next": "12.1.4",
+    "next": "^12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0"
   },
