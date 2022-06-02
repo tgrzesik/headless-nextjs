@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start -p ${PORT:-8080}",
     "lint": "next lint",
-    "wpe-build": "next build"
+    "wpe-build": "next builde"
   },
   "dependencies": {
     "@faustjs/next": "^0.15.5",
