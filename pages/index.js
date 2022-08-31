@@ -208,7 +208,7 @@ export default function Home({title}) {
   )
 }
 
-export async function getStaticProps(context) {
+export async function getServerSideProps(context) {
   let title = "DIARMUID"
 
   if (context.preview) {
