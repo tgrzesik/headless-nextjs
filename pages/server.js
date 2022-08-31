@@ -1,16 +1,16 @@
 import Head from 'next/head'
 
-export default function Home({title}) {
+export default function Home({preview}) {
   return (
     <div className="container">
       <Head>
-        <title>{title} Server</title>
+        <title>Server</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
         <h1 className="title">
-          Welcome to {title} Server
+          λ (Server) server-side rendered page {preview}
         </h1>
       </main>
     </div>
@@ -18,15 +18,15 @@ export default function Home({title}) {
 }
 
 export async function getServerSideProps(context) {
-  let title = "DIARMUID"
+  let preview = "(preview mode disabled)"
 
   if (context.preview) {
-    title = "DIARMUID (preview)"
+    preview = "(preview mode enabled)"
   }
 
   return {
     props: {
-      "title": title,
+      "preview": preview,
     },
   }
 }

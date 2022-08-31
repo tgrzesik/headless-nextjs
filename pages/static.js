@@ -4,13 +4,13 @@ export default function Home() {
   return (
     <div className="container">
       <Head>
-        <title>DIARMUID Static</title>
+        <title>Static</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
         <h1 className="title">
-          Welcome to DIARMUID Static
+          ○ (Static) static page (no preview mode for static pages)
         </h1>
       </main>
     </div>
