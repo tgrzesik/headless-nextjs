@@ -1,16 +1,16 @@
 import Head from 'next/head'
 
-export default function Home({title}) {
+export default function Home() {
   return (
     <div className="container">
       <Head>
-        <title>{title}</title>
+        <title>DIARMUID</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
         <h1 className="title">
-          Welcome to {title}
+          Welcome to DIARMUID
         </h1>
 
         <p className="description">
@@ -206,18 +206,4 @@ export default function Home({title}) {
       `}</style>
     </div>
   )
-}
-
-export async function getServerSideProps(context) {
-  let title = "DIARMUID"
-
-  if (context.preview) {
-    title = "DIARMUID (preview)"
-  }
-
-  return {
-    props: {
-      "title": title,
-    },
-  }
 }
