@@ -10,14 +10,10 @@
     "wpe-build": "next build"
   },
   "dependencies": {
-    "@faustjs/next": "^0.15.5",
-    "next": "^12.1.5",
-    "react": "18.0.0",
-    "react-dom": "18.0.0"
+    "next": "^12.1"
   },
   "engines": {
-    "node": ">= 12",
-    "npm": "8.13.1"
+    "node": ">= 12"
   },
   "packageManager": "inpm@8.0.0"
 }
