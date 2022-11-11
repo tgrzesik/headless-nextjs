@@ -10,7 +10,7 @@ export default function Home({generated}) {
 
       <main>
         <h1 className="title">
-          ● (ISR) Server Side Generated page {generated}
+          ● (ISR) Server Side Generated page (revalidated every 10 seoncds, last revalidate: {generated})
         </h1>
       </main>
     </div>
