@@ -10,9 +10,9 @@ export default function Home({generated}) {
 
       <main>
         <h1 className="title">
-          ● (ISR) Server Side Generated page
+          ● (On-demand ISR) Server Side Generated page
         </h1>
-        <p>Revalidated every 10 seoncds, last revalidate: {generated}</p>
+        <p>Visit <a href="/api/revalidate">/api/revalidate</a> to revalidate, last revalidate: {generated}</p>
       </main>
     </div>
   )
@@ -25,10 +25,6 @@ export async function getStaticProps() {
   return {
     props: {
       generated,
-    },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every 10 seconds
-    revalidate: 10, // In seconds
+    }
   }
 }

@@ -10,7 +10,7 @@
     "wpe-build": "next build"
   },
   "dependencies": {
-    "next": "^12.1"
+    "next": "^13"
   },
   "engines": {
     "node": ">= 12"
