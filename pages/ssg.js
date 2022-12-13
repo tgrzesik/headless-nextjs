@@ -12,6 +12,8 @@ export default function Home({preview}) {
         <h1 className="title">
           ● (SSG) Server Side Generated page {preview}
         </h1>
+        {{}}
+        <p>Visit <a href="/api/preview">/api/preview</a> to enable and <a href="/api/clear-preview">/api/clear-preview</a> to disable preview mode</p>
       </main>
     </div>
   )
