@@ -47,6 +47,16 @@ export default function Home() {
             </p>
           </a>
 
+          <a
+            href="/odisr"
+            className="card"
+          >
+            <h3>OD-ISR &rarr;</h3>
+            <p>
+              Instantly deploy your Next.js site to a public URL with Vercel.
+            </p>
+          </a>
+
           <div className="card">
             <Image
               src="/bridge.png"
