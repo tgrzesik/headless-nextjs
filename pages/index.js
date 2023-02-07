@@ -81,6 +81,11 @@ export default function Home() {
         </a>
       </footer>
 
+      <script
+        type="text/javascript"
+        src="/_next/static/~partytown/script.js"
+      />
+
       <style jsx>{`
         .container {
           min-height: 100vh;
