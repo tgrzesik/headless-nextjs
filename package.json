@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && mkdir -p .next/static/~partytown/ && cp public/script.js .next/static/~partytown/",
-    "start": "next start -p ${PORT:-8080}",
+    "build": "next build",
+    "start": "mkdir -p .next/static/~partytown/ && cp public/script.js .next/static/~partytown/ && next start -p ${PORT:-8080}",
     "lint": "next lint",
     "wpe-build": "next build"
   },
