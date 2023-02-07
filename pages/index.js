@@ -58,11 +58,13 @@ export default function Home() {
           </a>
 
           <div className="card">
-            <Image
-              src="/bridge.png"
-              width={220}
-              height={220}
-            />
+            <a href="/bridge.png">
+              <Image
+                src="/bridge.png"
+                width={220}
+                height={220}
+              />
+            </a>
           </div>
 
         </div>
