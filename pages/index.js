@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import Text from "@/styles/text"
 
 export default function Home() {
   return (
@@ -43,7 +44,7 @@ export default function Home() {
           >
             <h3>Server &rarr;</h3>
             <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
+              Instantly deploy your Next.js site to a public URL with Vercel. { Text }
             </p>
           </a>
 
