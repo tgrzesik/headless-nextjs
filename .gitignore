@@ -31,3 +31,4 @@ yarn-error.log*
 
 wpe.json
 .vercel
+.open-next
