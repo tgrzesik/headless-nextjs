@@ -15,7 +15,8 @@ export default function Home() {
         </h1>
 
         <p className="description">
-          Next.js features demo (<a href="https://github.com/diarmuidie/headless-nextjs">Source</a>)
+          Next.js features demo
+          <a href="https://github.com/diarmuidie/headless-nextjs">github.com/diarmuidie/headless-nextjs</a>
         </p>
 
         <div className="grid">
@@ -34,7 +35,7 @@ export default function Home() {
             className="card"
           >
             <h3>Static &rarr;</h3>
-            <p>Static (built time) page.</p>
+            <p>Static page.</p>
           </a>
 
           <a
@@ -148,6 +149,10 @@ export default function Home() {
         .description {
           line-height: 1.5;
           font-size: 1.5rem;
+        }
+
+        .description a {
+          text-decoration: underline;
         }
 
         code {
