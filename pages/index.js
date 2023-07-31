@@ -15,8 +15,7 @@ export default function Home() {
         </h1>
 
         <p className="description">
-          Next.js features demo
-          <a href="https://github.com/diarmuidie/headless-nextjs">github.com/diarmuidie/headless-nextjs</a>
+          Next.js features demo (<a href="https://github.com/diarmuidie/headless-nextjs">source</a>)
         </p>
 
         <div className="grid">
@@ -154,6 +153,11 @@ export default function Home() {
         .description a {
           text-decoration: underline;
         }
+
+        .description a:hover {
+          color: #0070f3
+        }
+
 
         code {
           background: #fafafa;
