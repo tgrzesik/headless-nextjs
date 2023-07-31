@@ -10,7 +10,7 @@ export default function Home({generated}) {
 
       <main>
         <h1 className="title">
-          ● (ISR) Server Side Generated page
+            (ISR) Server Side Generated page
         </h1>
         <p>Revalidated every 10 seoncds, last revalidate: {generated}</p>
       </main>
@@ -18,6 +18,9 @@ export default function Home({generated}) {
   )
 }
 
+// This function gets called at build time on server-side.
+// It may be called again, on a serverless function, if
+// revalidation is enabled and a new request comes in
 export async function getStaticProps() {
   let time = new Date();
   const generated = time.toTimeString()
