@@ -5,28 +5,28 @@ export default function Home() {
   return (
     <div className="container">
       <Head>
-        <title>Diarmuid Next.js Site</title>
+        <title>Atlas Next.js Site</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
         <h1 className="title">
-          Welcome to Diarmuid
+          Atlas Platform Edge Next.js Features Demo
         </h1>
 
         <p className="description">
-          Version 4
+          Source: <a href="https://github.com/diarmuidie/headless-nextjs">https://github.com/diarmuidie/headless-nextjs</a>
         </p>
 
         <div className="grid">
           <a href="/isr" className="card">
             <h3>ISR &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
+            <p>Incremental static regeneration page.</p>
           </a>
 
           <a href="/ssg" className="card">
             <h3>SSG &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
+            <p>Server side generated page.</p>
           </a>
 
           <a
@@ -34,7 +34,7 @@ export default function Home() {
             className="card"
           >
             <h3>Static &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
+            <p>Static (built time) page.</p>
           </a>
 
           <a
@@ -42,9 +42,7 @@ export default function Home() {
             className="card"
           >
             <h3>Server &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
+            <p>Server side rendered page.</p>
           </a>
 
           <a
@@ -53,7 +51,7 @@ export default function Home() {
           >
             <h3>OD-ISR &rarr;</h3>
             <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
+              On-demand incremental static regeneration page.
             </p>
           </a>
 
@@ -72,12 +70,12 @@ export default function Home() {
 
       <footer>
         <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+          href="https://wpengine.com/headless-wordpress/"
           target="_blank"
           rel="noopener noreferrer"
         >
           Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
+          <img src="/wpe.svg" alt="WP Engine Logo" className="logo" />
         </a>
       </footer>
 
