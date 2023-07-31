@@ -11,11 +11,11 @@ export default function Home() {
 
       <main>
         <h1 className="title">
-          Atlas Platform Edge Next.js Features Demo
+          Atlas Platform Edge
         </h1>
 
         <p className="description">
-          Source: <a href="https://github.com/diarmuidie/headless-nextjs">https://github.com/diarmuidie/headless-nextjs</a>
+          Next.js features demo (<a href="https://github.com/diarmuidie/headless-nextjs">Source</a>)
         </p>
 
         <div className="grid">
