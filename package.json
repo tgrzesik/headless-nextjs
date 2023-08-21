@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel": "mkdir -p .vercel && echo \"{ \\\"projectId\\\": \\\"_\\\", \\\"orgId\\\": \\\"_\\\", \\\"settings\\\": {} }\" > .vercel/project.json && vercel build",
     "start": "next start -p ${PORT:-8080}",
     "lint": "next lint",
     "wpe-build": "next build"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@types/node": "18.14.4",
     "@types/react": "18.0.28",
-    "typescript": "4.9.5"
+    "typescript": "4.9.5",
+    "vercel": "^31.4.0"
   }
 }
