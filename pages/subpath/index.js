@@ -11,11 +11,11 @@ export default function Home() {
 
       <main>
         <h1 className="title">
-          Atlas Platform Edge
+          Atlas Platform Edge Next.js Features Demo
         </h1>
 
         <p className="description">
-          Next.js features demo (<a href="https://github.com/diarmuidie/headless-nextjs">source</a>)
+          Source: <a href="https://github.com/diarmuidie/headless-nextjs">https://github.com/diarmuidie/headless-nextjs</a>
         </p>
 
         <div className="grid">
@@ -34,7 +34,7 @@ export default function Home() {
             className="card"
           >
             <h3>Static &rarr;</h3>
-            <p>Static page.</p>
+            <p>Static (built time) page.</p>
           </a>
 
           <a
@@ -56,7 +56,6 @@ export default function Home() {
           </a>
 
           <div className="card">
-            <h3>Image Component &rarr;</h3>
             <a href="/bridge.png">
               <Image
                 src="/bridge.png"
@@ -149,15 +148,6 @@ export default function Home() {
           line-height: 1.5;
           font-size: 1.5rem;
         }
-
-        .description a {
-          text-decoration: underline;
-        }
-
-        .description a:hover {
-          color: #0070f3
-        }
-
 
         code {
           background: #fafafa;
