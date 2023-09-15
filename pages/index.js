@@ -19,18 +19,18 @@ export default function Home() {
         </p>
 
         <div className="grid">
-          <a href="/isr" className="card">
+          <a href="/sample-isr" className="card">
             <h3>ISR &rarr;</h3>
             <p>Incremental static regeneration page.</p>
           </a>
 
-          <a href="/ssg" className="card">
+          <a href="/sample-ssg" className="card">
             <h3>SSG &rarr;</h3>
             <p>Server side generated page.</p>
           </a>
 
           <a
-            href="/static"
+            href="/sample-static"
             className="card"
           >
             <h3>Static &rarr;</h3>
@@ -38,7 +38,7 @@ export default function Home() {
           </a>
 
           <a
-            href="/server"
+            href="/sample-server"
             className="card"
           >
             <h3>Server &rarr;</h3>
@@ -46,7 +46,7 @@ export default function Home() {
           </a>
 
           <a
-            href="/odisr"
+            href="/sample-odisr"
             className="card"
           >
             <h3>OD-ISR &rarr;</h3>
