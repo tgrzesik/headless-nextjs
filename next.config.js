@@ -9,10 +9,20 @@ const nextConfig = {
         // and before all files including _next/public files which
         // allows overriding page files
         {
-          source: '/before',
-          destination: '/somewhere-else',
-          has: [{ type: 'query', key: 'overrideMe' }],
+          source: '/this/:path*',
+          destination: '/:one/:path*',
+          has: [
+            {
+              type: 'header',
+              key: 'one',
+              value: '(?<one>.*)',
+            },
+          ],
         },
+        // {
+        //   source: '/:first/:second',
+        //   destination: '/:first?second=:second',
+        // },
       ],
       afterFiles: [
         // These rewrites are checked after pages/public files
@@ -35,8 +45,8 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/bar',
-        destination: '/foos',
+        source: '/bar/:path',
+        destination: '/:path',
         permanent: true,
       },
     ]
