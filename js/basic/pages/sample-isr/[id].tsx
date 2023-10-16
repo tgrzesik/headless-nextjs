@@ -9,8 +9,16 @@ export async function getStaticPaths() {
   }
 }
 
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+
 // `getStaticPaths` requires using `getStaticProps`
 export async function getStaticProps(context) {
+  console.log("pausing...")
+  await delay(5000);
+  console.log("continuing...")
+
   let time = new Date();
   const generated = time.toTimeString()
 
@@ -36,7 +44,7 @@ export default function PostPage({generated}) {
 
     <main>
       <h1 className="title">
-          (ISR) Server Side Generated page (dynamic ID: {id})
+          (ISR) Server Side Generated page (dynamic ID: {id}) with a 5 second render duration (to simulate waiting on a slow API call)
       </h1>
       <p>Revalidated every 29 seconds, last revalidate: {generated}</p>
     </main>
