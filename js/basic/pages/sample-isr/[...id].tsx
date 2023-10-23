@@ -4,7 +4,13 @@ import React from 'react'
 
 export async function getStaticPaths() {
   return {
-    paths: [],
+    paths: [
+      {
+        params: {
+          id: ['12'],
+        },
+      },
+    ],
     fallback: 'blocking', // can also be true or 'blocking'
   }
 }
