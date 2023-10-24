@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function Home() {
   return (
@@ -19,33 +20,33 @@ export default function Home() {
         </p>
 
         <div className="grid">
-          <a href="/sample-isr" className="card">
+          <Link href="/sample-isr" className="card">
             <h3>ISR &rarr;</h3>
             <p>Incremental static regeneration page.</p>
-          </a>
+          </Link>
 
-          <a href="/sample-ssg" className="card">
+          <Link href="/sample-ssg" className="card">
             <h3>SSG &rarr;</h3>
             <p>Server side generated page.</p>
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/sample-static"
             className="card"
           >
             <h3>Static &rarr;</h3>
             <p>Static page.</p>
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/sample-server"
             className="card"
           >
             <h3>Server &rarr;</h3>
             <p>Server side rendered page.</p>
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/sample-odisr"
             className="card"
           >
@@ -53,7 +54,7 @@ export default function Home() {
             <p>
               On-demand incremental static regeneration page.
             </p>
-          </a>
+          </Link>
 
           <div className="card">
             <h3>Image Component &rarr;</h3>
