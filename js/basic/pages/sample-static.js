@@ -1,6 +1,9 @@
 import Head from 'next/head'
 
 export default function Home() {
+  let time = new Date();
+  const generated = time.toTimeString()
+
   return (
     <div className="container">
       <Head>
@@ -10,7 +13,7 @@ export default function Home() {
 
       <main>
         <h1 className="title">
-          ○ (Static) static page (no preview mode for static pages)
+          ○ (Static) static page (no preview mode for static pages), page built: {generated}
         </h1>
       </main>
     </div>
