@@ -20,12 +20,12 @@ export default function Home() {
         </p>
 
         <div className="grid">
-          <Link href="/sample-isr/static" className="card">
+          <Link href="/sample-isr/sample-static" className="card">
             <h3>ISR &rarr;</h3>
             <p>Static Incremental static regeneration page.</p>
           </Link>
 
-          <Link href="/sample-isr/dynamic" className="card">
+          <Link href="/sample-isr/sample-dynamic" className="card">
             <h3>ISR &rarr;</h3>
             <p>Dynamic Incremental static regeneration page.</p>
           </Link>
