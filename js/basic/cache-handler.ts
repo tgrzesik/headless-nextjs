@@ -28,15 +28,13 @@ module.exports = class CacheHandler {
       "Bucket": "next-cache-handler-diarmuid",
       "Key": key
     });
-    const response = await this.s3Client.send(command);
-
-    if (!response) {
+    try {
+      const response = await this.s3Client.send(command);
+      const str = await response.Body.transformToString();
+      return JSON.parse(str)
+    } catch(e) {
       return {}
     }
-
-    const str = await response.Body.transformToString();
-
-    return JSON.parse(str)
   }
 
   async set(key, data) {
