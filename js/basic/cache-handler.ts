@@ -3,14 +3,14 @@ const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/clien
 module.exports = class CacheHandler {
   options = {}
   s3Client
-  prefix = "diarmuid"
+  prefix = process.env.R2_PREFIX
 
   constructor(options) {
     this.options = options
 
-    const accountID = ""
-    const accountKey = ""
-    const accountSecret = ""
+    const accountID = process.env.ACCOUNT_ID
+    const accountKey = process.env.ACCOUNT_KEY
+    const accountSecret = process.env.ACCOUNT_SECRET 
 
     this.s3Client = new S3Client({
       region: "auto",
@@ -53,7 +53,8 @@ module.exports = class CacheHandler {
     const command = new PutObjectCommand({
       "Bucket": "next-cache-handler-diarmuid",
       "Key": key,
-      "Body": JSON.stringify(payload)
+      "Body": JSON.stringify(payload),
+      "ContentType": 'application/json'
     });
 
     try {
