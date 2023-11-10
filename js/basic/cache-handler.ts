@@ -1,8 +1,4 @@
-import {
-  S3Client,
-  GetObjectCommand,
-  PutObjectCommand
-} from "@aws-sdk/client-s3"
+const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 module.exports = class CacheHandler {
   options = {}
