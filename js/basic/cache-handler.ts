@@ -3,6 +3,7 @@ const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/clien
 module.exports = class CacheHandler {
   options = {}
   s3Client
+  prefix = "diarmuid"
 
   constructor(options) {
     this.options = options
@@ -22,11 +23,11 @@ module.exports = class CacheHandler {
   }
 
   async get(key) {
-    console.log(`GET: ${key}`)
+    console.log(`GET: ${this.prefix}/${key}`)
 
     const command = new GetObjectCommand({
       "Bucket": "next-cache-handler-diarmuid",
-      "Key": key
+      "Key": `${this.prefix}/${key}`
     });
     try {
       const response = await this.s3Client.send(command);
@@ -42,11 +43,11 @@ module.exports = class CacheHandler {
       value: data,
       lastModified: Date.now(),
     }
-    console.log(`SET: ${key}`, payload)
+    console.log(`SET: ${this.prefix}/${key}`, payload)
 
     const command = new PutObjectCommand({
       "Bucket": "next-cache-handler-diarmuid",
-      "Key": key,
+      "Key": `${this.prefix}/${key}`,
       "Body": JSON.stringify(payload)
     });
     const response = await this.s3Client.send(command);
