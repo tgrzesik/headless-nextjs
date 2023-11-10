@@ -11,6 +11,8 @@
     "wpe-build": "next build"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.445.0",
+    "@aws-sdk/types": "^3.433.0",
     "next": ">= 13"
   },
   "engines": {

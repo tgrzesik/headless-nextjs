@@ -2,6 +2,7 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
+  transpilePackages: ['@aws-sdk/client-s3'],
   async rewrites() {
     return {
       beforeFiles: [
@@ -68,6 +69,9 @@ const nextConfig = {
         ],
       },
     ]
+  },
+  experimental: {
+    incrementalCacheHandlerPath: require.resolve('./cache-handler.ts'),
   },
 }
 
