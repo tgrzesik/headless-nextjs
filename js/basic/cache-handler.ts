@@ -23,18 +23,22 @@ module.exports = class CacheHandler {
   }
 
   async get(key) {
-    console.log(`GET: ${this.prefix}/${key}`)
+    key = this.getKey(key)
+
+    console.log(`GET: ${key}`)
 
     const command = new GetObjectCommand({
       "Bucket": "next-cache-handler-diarmuid",
-      "Key": `${this.prefix}/${key}`
+      "Key": key
     });
     try {
       const response = await this.s3Client.send(command);
       const str = await response.Body.transformToString();
-      return JSON.parse(str)
+      const json = JSON.parse(str)
+      console.log(json)
+      return json
     } catch(e) {
-      return {}
+      console.log("Get failed")
     }
   }
 
@@ -43,13 +47,25 @@ module.exports = class CacheHandler {
       value: data,
       lastModified: Date.now(),
     }
-    console.log(`SET: ${this.prefix}/${key}`, payload)
+    key = this.getKey(key)
+    console.log(`SET: ${key}`, payload)
 
     const command = new PutObjectCommand({
       "Bucket": "next-cache-handler-diarmuid",
-      "Key": `${this.prefix}/${key}`,
+      "Key": key,
       "Body": JSON.stringify(payload)
     });
-    const response = await this.s3Client.send(command);
+
+    try {
+      const response = await this.s3Client.send(command);
+
+    } catch (e) {
+      console.log("Put failed:", e)
+    }
+  }
+
+  getKey(key) {
+    key = key.replace(/^\/+/g, '')
+    return `${this.prefix}/${key}`
   }
 }
