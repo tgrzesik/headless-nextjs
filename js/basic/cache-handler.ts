@@ -35,7 +35,6 @@ module.exports = class CacheHandler {
       const response = await this.s3Client.send(command);
       const str = await response.Body.transformToString();
       const json = JSON.parse(str)
-      console.log(json)
       return json
     } catch(e) {
       console.log("Get failed")
@@ -48,7 +47,7 @@ module.exports = class CacheHandler {
       lastModified: Date.now(),
     }
     key = this.getKey(key)
-    console.log(`SET: ${key}`, payload)
+    console.log(`SET: ${key}`)
 
     const command = new PutObjectCommand({
       "Bucket": "next-cache-handler-diarmuid",
@@ -59,10 +58,13 @@ module.exports = class CacheHandler {
 
     try {
       const response = await this.s3Client.send(command);
-
     } catch (e) {
       console.log("Put failed:", e)
     }
+  }
+
+  async revalidateTag(tag) {
+    console.log(`REVALIDATE TAG: ${tag}`)
   }
 
   getKey(key) {
