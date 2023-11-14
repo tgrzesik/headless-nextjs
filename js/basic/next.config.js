@@ -73,9 +73,7 @@ const nextConfig = {
   },
   experimental: {
     // incrementalCacheHandlerPath: require.resolve('./cache-handler.ts'),
-    // isrMemoryCacheSize: 0,
-    // isrFlushToDisk: false
-    serverActions: true
+    // isrMemoryCacheSize: 0
   },
 }
 
