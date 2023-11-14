@@ -3,6 +3,7 @@
  */
 const nextConfig = {
   transpilePackages: ['@aws-sdk/client-s3'],
+  // output: 'standalone',
   async rewrites() {
     return {
       beforeFiles: [
@@ -71,7 +72,9 @@ const nextConfig = {
     ]
   },
   experimental: {
-    incrementalCacheHandlerPath: require.resolve('./cache-handler.ts'),
+    // incrementalCacheHandlerPath: require.resolve('./cache-handler.ts'),
+    // isrMemoryCacheSize: 0,
+    // isrFlushToDisk: false
   },
 }
 
