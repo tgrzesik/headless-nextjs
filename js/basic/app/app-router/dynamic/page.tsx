@@ -3,7 +3,7 @@ import styles from '../page.module.css'
 import { headers } from 'next/headers'
 
 async function getData() {
-  const res = await fetch('https://api.openbrewerydb.org/v1/breweries/random?size=1', { next: { revalidate: 15 } })
+  const res = await fetch('https://api.openbrewerydb.org/v1/breweries/random?size=1', { next: { revalidate: 15, tags: ["brew"] } })
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -72,10 +72,10 @@ export default async function Home() {
           rel="noopener noreferrer"
         >
           <h2>
-            Referer header:  <span>-&gt;</span>
+            Revalidate<span>-&gt;</span>
           </h2>
           <p>{referer}</p>
-          <p>Using the value of a header forces the page to be dynamic</p>
+          <p>OD Revalidate the page</p>
         </a>
       </div>
     </main>

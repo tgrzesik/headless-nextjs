@@ -2,7 +2,7 @@ import Image from 'next/image'
 import styles from '../page.module.css'
 
 async function getData() {
-  const res = await fetch('https://api.openbrewerydb.org/v1/breweries/random?size=1', { next: { revalidate: 15 } })
+  const res = await fetch('https://api.openbrewerydb.org/v1/breweries/random?size=1', { next: { revalidate: 15, tags: ["brew"] } })
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -14,7 +14,7 @@ async function getData() {
 
 export default async function Home() {
   const data = await getData()
-  
+
   return (
     <main className={styles.main}>
       <div className={styles.description}>
