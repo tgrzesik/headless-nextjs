@@ -1,6 +1,7 @@
 /**
  * @type {import('next').NextConfig}
  */
+
 const nextConfig = {
   transpilePackages: ['@aws-sdk/client-s3'],
   // output: 'standalone',
@@ -72,8 +73,8 @@ const nextConfig = {
     ]
   },
   experimental: {
-    // incrementalCacheHandlerPath: require.resolve('./cache-handler.ts'),
-    // isrMemoryCacheSize: 0
+    incrementalCacheHandlerPath: require.resolve('./cache-handler.ts'),
+    isrMemoryCacheSize: 0
   },
 }
 

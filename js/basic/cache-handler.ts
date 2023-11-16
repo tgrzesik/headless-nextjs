@@ -3,18 +3,19 @@ const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/clien
 module.exports = class CacheHandler {
   options = {}
   s3Client
-  prefix = process.env.R2_PREFIX
+  prefix = process.env.prefix || "prefix"
+  bucket = process.env.bucket
 
   constructor(options) {
     this.options = options
 
-    const accountID = process.env.ACCOUNT_ID
-    const accountKey = process.env.ACCOUNT_KEY
-    const accountSecret = process.env.ACCOUNT_SECRET 
+    const accountKey = process.env.key
+    const accountSecret = process.env.secret
+    const endpoint = process.env.endpoint
 
     this.s3Client = new S3Client({
       region: "auto",
-      endpoint: `https://${accountID}.r2.cloudflarestorage.com`,
+      endpoint: endpoint,
       credentials: {
         accessKeyId: accountKey,
         secretAccessKey: accountSecret,
@@ -28,7 +29,7 @@ module.exports = class CacheHandler {
     console.log(`GET: ${key}`)
 
     const command = new GetObjectCommand({
-      "Bucket": "next-cache-handler-diarmuid",
+      "Bucket": this.bucket,
       "Key": key
     });
     try {
@@ -50,7 +51,7 @@ module.exports = class CacheHandler {
     console.log(`SET: ${key}`)
 
     const command = new PutObjectCommand({
-      "Bucket": "next-cache-handler-diarmuid",
+      "Bucket": this.bucket,
       "Key": key,
       "Body": JSON.stringify(payload),
       "ContentType": 'application/json'
