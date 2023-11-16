@@ -23,13 +23,13 @@ module.exports = class CacheHandler {
   }
 
   async get(key) {
-    key = this.getKey(key)
+    key = this.getKey(".next/" + key)
 
     console.log(`GET: ${key}`)
 
     const command = new GetObjectCommand({
       "Bucket": this.bucket,
-      "Key": ".next/" + key
+      "Key": key
     });
     try {
       const response = await this.s3Client.send(command);
@@ -46,12 +46,12 @@ module.exports = class CacheHandler {
       value: data,
       lastModified: Date.now(),
     }
-    key = this.getKey(key)
+    key = this.getKey(".next/" + key)
     console.log(`SET: ${key}`)
 
     const command = new PutObjectCommand({
       "Bucket": this.bucket,
-      "Key": ".next/" + key,
+      "Key": key,
       "Body": JSON.stringify(payload),
       "ContentType": 'application/json'
     });
