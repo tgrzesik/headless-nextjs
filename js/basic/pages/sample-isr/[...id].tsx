@@ -25,8 +25,8 @@ export async function getStaticProps(context) {
   await delay(5000);
   console.log("continuing...")
 
-  let time = new Date();
-  const generated = time.toTimeString()
+  let date = new Date();
+  const generated = date.toString()
 
   return {
     // Passed to the page component as props

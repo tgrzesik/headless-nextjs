@@ -1,8 +1,8 @@
 import Head from 'next/head'
 
 export default function Home() {
-  let time = new Date();
-  const generated = time.toTimeString()
+  let date = new Date();
+  const generated = date.toString()
 
   return (
     <div className="container">

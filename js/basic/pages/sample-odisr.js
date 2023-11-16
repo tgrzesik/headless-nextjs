@@ -19,8 +19,8 @@ export default function Home({generated}) {
 }
 
 export async function getStaticProps() {
-  let time = new Date();
-  const generated = time.toTimeString()
+  let date = new Date();
+  const generated = date.toString()
 
   return {
     props: {

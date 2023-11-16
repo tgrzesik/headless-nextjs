@@ -22,8 +22,9 @@ export default function Home({generated, draftMode}) {
 // It may be called again, on a serverless function, if
 // revalidation is enabled and a new request comes in
 export async function getStaticProps(context) {
-  let time = new Date();
-  const generated = time.toTimeString()
+  let date = new Date();
+  const generated = date.toString()
+
   let draftMode = "false"
 
   if (context.draftMode) {
@@ -35,9 +36,7 @@ export async function getStaticProps(context) {
       generated,
       draftMode
     },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every 10 seconds
-    revalidate: 28, // In seconds
+
+    revalidate: 28,
   }
 }
