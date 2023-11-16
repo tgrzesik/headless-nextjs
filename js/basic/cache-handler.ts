@@ -3,7 +3,6 @@ const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/clien
 module.exports = class CacheHandler {
   options = {}
   s3Client
-  prefix = process.env.prefix || "prefix"
   bucket = process.env.bucket
 
   constructor(options) {
@@ -30,7 +29,7 @@ module.exports = class CacheHandler {
 
     const command = new GetObjectCommand({
       "Bucket": this.bucket,
-      "Key": key
+      "Key": ".next/" + key
     });
     try {
       const response = await this.s3Client.send(command);
@@ -52,7 +51,7 @@ module.exports = class CacheHandler {
 
     const command = new PutObjectCommand({
       "Bucket": this.bucket,
-      "Key": key,
+      "Key": ".next/" + key,
       "Body": JSON.stringify(payload),
       "ContentType": 'application/json'
     });
@@ -70,6 +69,6 @@ module.exports = class CacheHandler {
 
   getKey(key) {
     key = key.replace(/^\/+/g, '')
-    return `${this.prefix}/${key}`
+    return `${process.env.ATLAS_METADATA_ENV_ID}/${process.env.ATLAS_METADATA_BUILD_ID}/${key}`
   }
 }
