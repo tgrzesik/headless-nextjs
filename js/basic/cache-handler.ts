@@ -23,7 +23,7 @@ module.exports = class CacheHandler {
   }
 
   async get(key) {
-    key = this.getKey(".next/" + key)
+    key = this.getKey("cache/" + key)
 
     console.log(`GET: ${key}`)
 
@@ -46,7 +46,7 @@ module.exports = class CacheHandler {
       value: data,
       lastModified: Date.now(),
     }
-    key = this.getKey(".next/" + key)
+    key = this.getKey("cache/" + key)
     console.log(`SET: ${key}`)
 
     const command = new PutObjectCommand({
