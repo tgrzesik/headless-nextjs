@@ -23,8 +23,8 @@ module.exports = class CacheHandler {
   }
 
   async get(key) {
+    key = key.replace(/^\/+/g, '')
     key = this.getKey("cache/" + key)
-
     console.log(`GET: ${key}`)
 
     const command = new GetObjectCommand({
@@ -41,13 +41,14 @@ module.exports = class CacheHandler {
     }
   }
 
-  async set(key, data) {
+  async set(key, data, ctx) {
     let payload = {
       value: data,
       lastModified: Date.now(),
     }
+    key = key.replace(/^\/+/g, '')
     key = this.getKey("cache/" + key)
-    console.log(`SET: ${key}`)
+    console.log(`SET: ${key}`, ctx)
 
     const command = new PutObjectCommand({
       "Bucket": this.bucket,
@@ -55,9 +56,8 @@ module.exports = class CacheHandler {
       "Body": JSON.stringify(payload),
       "ContentType": 'application/json'
     });
-
     try {
-      const response = await this.s3Client.send(command);
+      await this.s3Client.send(command);
     } catch (e) {
       console.log("Put failed:", e)
     }
@@ -69,6 +69,8 @@ module.exports = class CacheHandler {
 
   getKey(key) {
     key = key.replace(/^\/+/g, '')
-    return `${process.env.ATLAS_METADATA_ENV_ID}/${process.env.ATLAS_METADATA_BUILD_ID}/${key}`
+    const envID = process.env.ATLAS_METADATA_ENV_ID || "envid"
+    const buildID = process.env.ATLAS_METADATA_BUILD_ID || "buildid"
+    return `${envID}/${buildID}/${key}`
   }
 }
