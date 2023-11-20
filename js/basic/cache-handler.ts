@@ -45,8 +45,7 @@ module.exports = class CacheHandler {
 
   getKey(key) {
     key = key.replace(/^\/+/g, '')
-    const envID = process.env.ATLAS_METADATA_ENV_ID || "envid"
     const buildID = process.env.ATLAS_METADATA_BUILD_ID || "buildid"
-    return `${envID}/${buildID}/${key}`
+    return `${buildID}/${key}`
   }
 }
