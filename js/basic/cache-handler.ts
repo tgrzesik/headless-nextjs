@@ -30,10 +30,7 @@ module.exports = class CacheHandler {
     key = this.getKey("cache/" + key)
     console.log(`SET: ${key}`, ctx)
 
-    axios.put(`http://localhost:8083/kv/${key}`, data)
-    .then(res => {
-      return res.data;
-    })
+    axios.put(`http://localhost:8083/kv/${key}`, payload)
     .catch(err => {
       console.log('Error: ', err.message);
     });
