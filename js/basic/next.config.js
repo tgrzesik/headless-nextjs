@@ -73,7 +73,7 @@ const nextConfig = {
     ]
   },
   experimental: {
-    incrementalCacheHandlerPath: require.resolve('./cache-handler.ts'),
+    incrementalCacheHandlerPath: require.resolve('./cache-handler.js'),
     isrMemoryCacheSize: 0
   },
 }
