@@ -61,7 +61,7 @@ var import_file_system_cache = __toESM(require("next/dist/server/lib/incremental
 module.exports = class CacheHandler extends import_file_system_cache.default {
   constructor(options) {
     super(options);
-    this.kvStoreURL = process.env.ATLAS_CACHE_URL ?? "http://localhost:8083/kv";
+    this.kvStoreURL = process.env.ATLAS_CACHE_URL ?? "http://127.0.0.1:8083/kv";
     console.log("OPTIONS: ", options);
   }
   async get(key) {
