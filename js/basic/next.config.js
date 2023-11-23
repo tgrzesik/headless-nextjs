@@ -84,9 +84,9 @@ module.exports = nextConfig
 function icr() {
   if (process.env.ATLAS_CACHE_HANDLER !== undefined) {
     console.log('custom cache handler enabled')
-    return require.resolve('./cache-handler.js')
+    return require.resolve('./atlas-cache-handler.js')
   }
-  
+
   console.log('custom cache handler not enabled')
   return ""
 }
