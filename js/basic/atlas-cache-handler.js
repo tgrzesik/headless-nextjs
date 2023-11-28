@@ -5,6 +5,10 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -21,8 +25,14 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/atlas-cache-handler.ts
+var atlas_cache_handler_exports = {};
+__export(atlas_cache_handler_exports, {
+  default: () => CacheHandler
+});
+module.exports = __toCommonJS(atlas_cache_handler_exports);
 var import_file_system_cache = __toESM(require("next/dist/server/lib/incremental-cache/file-system-cache"));
 var import_node_fetch = __toESM(require("node-fetch"));
 var HTTPResponseError = class extends Error {
@@ -31,36 +41,32 @@ var HTTPResponseError = class extends Error {
     this.response = response;
   }
 };
-var checkStatus = (response) => {
-  if (response.status < 200 && response.status >= 300) {
-    throw new HTTPResponseError(response);
-  }
+var HTTPNotFoundError = class extends HTTPResponseError {
 };
-module.exports = class CacheHandler {
+var CacheHandler = class {
   constructor(options) {
+    this.keyPrefix = ".atlas";
     this.filesystemCache = new import_file_system_cache.default(...arguments);
     this.kvStoreURL = process.env.ATLAS_CACHE_URL ?? "http://localhost:8083/kv";
-    console.log("OPTIONS: ", options);
   }
   async get(key) {
     console.time("get");
-    key = key.replace(/^\/+/g, "");
-    key = this.getKey("cache/" + key);
+    key = this.generateKey(key, this.keyPrefix);
     console.log(`GET: ${key}`);
     const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`);
     try {
-      checkStatus(response);
-      const res = await response.json();
+      this.checkStatus(response);
+      const json = await response.json();
       console.timeEnd("get");
-      return res;
+      return json;
     } catch (error) {
-      if (response.status === 404) {
+      if (error instanceof HTTPNotFoundError) {
         console.log("fallback");
         const fallback = await this.filesystemCache.get(...arguments);
         console.timeEnd("get");
         return fallback;
       }
-      console.log(error.message);
+      console.error(error);
       console.timeEnd("get");
     }
   }
@@ -70,9 +76,8 @@ module.exports = class CacheHandler {
       value: data,
       lastModified: Date.now()
     };
-    key = key.replace(/^\/+/g, "");
-    key = this.getKey("cache/" + key);
-    console.log(`SET: ${key}`, payload);
+    key = this.generateKey(key, this.keyPrefix);
+    console.log(`SET: ${key}`);
     await this.filesystemCache.set(...arguments);
     console.timeLog("set");
     const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
@@ -81,7 +86,7 @@ module.exports = class CacheHandler {
       headers: { "Content-Type": "application/json" }
     });
     try {
-      checkStatus(response);
+      this.checkStatus(response);
     } catch (error) {
       console.error(error);
       console.timeEnd("set");
@@ -92,13 +97,17 @@ module.exports = class CacheHandler {
     console.log(`REVALIDATE TAG: ${tag}`);
     await this.filesystemCache.revalidateTag(...arguments);
   }
-  getKey(key, prefix) {
-    key = key.replace(/^\/+/g, "");
-    const envID = process.env.ATLAS_METADATA_ENV_ID ?? "envid";
-    const buildID = process.env.ATLAS_METADATA_BUILD_ID ?? "buildid";
-    if (prefix != null) {
-      key = `${prefix}/key`;
+  checkStatus(response) {
+    if (response.status === 404) {
+      throw new HTTPNotFoundError(response);
     }
-    return `${envID}/${buildID}/${key}`;
+    if (response.status < 200 && response.status >= 300) {
+      throw new HTTPResponseError(response);
+    }
+  }
+  generateKey(key, prefix) {
+    key = key.replace(/^\/+/g, "");
+    const buildID = process.env.ATLAS_METADATA_BUILD_ID ?? "no-build-id";
+    return `${prefix}/${buildID}/next/${key}`;
   }
 };
