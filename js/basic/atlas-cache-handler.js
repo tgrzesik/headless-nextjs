@@ -53,8 +53,8 @@ var CacheHandler = class {
     console.time("get");
     key = this.generateKey(key, this.keyPrefix);
     console.log(`GET: ${key}`);
-    const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`);
     try {
+      const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`);
       this.checkStatus(response);
       const json = await response.json();
       console.timeEnd("get");
@@ -80,12 +80,12 @@ var CacheHandler = class {
     console.log(`SET: ${key}`);
     await this.filesystemCache.set(...arguments);
     console.timeLog("set");
-    const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-      headers: { "Content-Type": "application/json" }
-    });
     try {
+      const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" }
+      });
       this.checkStatus(response);
     } catch (error) {
       console.error(error);
