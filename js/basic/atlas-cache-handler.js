@@ -78,7 +78,11 @@ var CacheHandler = class {
     };
     key = this.generateKey(key, this.keyPrefix);
     console.log(`SET: ${key}`);
-    await this.filesystemCache.set(...arguments);
+    try {
+      await this.filesystemCache.set(...arguments);
+    } catch (error) {
+      console.log(error);
+    }
     console.timeLog("set");
     try {
       const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
@@ -101,7 +105,7 @@ var CacheHandler = class {
     if (response.status === 404) {
       throw new HTTPNotFoundError(response);
     }
-    if (response.status < 200 && response.status >= 300) {
+    if (response.status < 200 || response.status >= 300) {
       throw new HTTPResponseError(response);
     }
   }
