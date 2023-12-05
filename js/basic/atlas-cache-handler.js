@@ -35,6 +35,7 @@ __export(atlas_cache_handler_exports, {
 module.exports = __toCommonJS(atlas_cache_handler_exports);
 var import_file_system_cache = __toESM(require("next/dist/server/lib/incremental-cache/file-system-cache"));
 var import_node_fetch = __toESM(require("node-fetch"));
+var import_https = __toESM(require("https"));
 var HTTPResponseError = class extends Error {
   constructor(response) {
     super(`HTTP Error Response: ${response.status} ${response.statusText}`);
@@ -48,13 +49,22 @@ var CacheHandler = class {
     this.keyPrefix = ".atlas";
     this.filesystemCache = new import_file_system_cache.default(...arguments);
     this.kvStoreURL = process.env.ATLAS_CACHE_URL ?? "https://kv-store.kv-store.svc.cluster.local/kv";
+    this.selfSignedAgent = new import_https.default.Agent({
+      rejectUnauthorized: false
+    });
   }
   async get(key) {
     console.time("get");
     key = this.generateKey(key, this.keyPrefix);
     console.log(`GET: ${key}`);
     try {
-      const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`);
+      const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
+        agent: this.selfSignedAgent,
+        headers: {
+          "Content-Type": "application/json",
+          "x-kv-namespace": process.env.ATLAS_METADATA_ENV_ID
+        }
+      });
       this.checkStatus(response);
       const json = await response.json();
       console.timeEnd("get");
@@ -80,20 +90,19 @@ var CacheHandler = class {
     console.log(`SET: ${key}`);
     try {
       await this.filesystemCache.set(...arguments);
-    } catch (error) {
-      console.log(error);
-    }
-    console.timeLog("set");
-    try {
+      console.timeLog("set");
       const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
         method: "PUT",
         body: JSON.stringify(payload),
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json",
+          "x-kv-namespace": process.env.ATLAS_METADATA_ENV_ID
+        },
+        agent: this.selfSignedAgent
       });
       this.checkStatus(response);
     } catch (error) {
       console.error(error);
-      console.timeEnd("set");
     }
     console.timeEnd("set");
   }
@@ -105,7 +114,7 @@ var CacheHandler = class {
     if (response.status === 404) {
       throw new HTTPNotFoundError(response);
     }
-    if (response.status < 200 || response.status >= 300) {
+    if (response.status < 200 && response.status >= 300) {
       throw new HTTPResponseError(response);
     }
   }
