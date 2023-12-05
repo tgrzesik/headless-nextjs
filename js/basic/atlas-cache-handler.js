@@ -85,7 +85,7 @@ var CacheHandler = class {
       lastModified: Date.now()
     };
     const remoteKey = this.generateKey(key, this.keyPrefix);
-    console.log(`SET: ${key}`, JSON.stringify(payload));
+    console.log(`SET: ${key}`);
     try {
       const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${remoteKey}`, {
         method: "PUT",
