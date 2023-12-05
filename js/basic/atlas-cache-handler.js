@@ -54,10 +54,10 @@ var CacheHandler = class {
     });
   }
   async get(key) {
-    key = this.generateKey(key, this.keyPrefix);
+    const remoteKey = this.generateKey(key, this.keyPrefix);
     console.log(`GET: ${key}`);
     try {
-      const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
+      const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${remoteKey}`, {
         agent: this.selfSignedAgent,
         headers: {
           "Content-Type": "application/json",
@@ -69,8 +69,11 @@ var CacheHandler = class {
       return json;
     } catch (error) {
       if (error instanceof HTTPNotFoundError) {
-        console.log("fallback to disk");
         const fallback = await this.filesystemCache.get(...arguments);
+        if (fallback?.value != null) {
+          console.log("sending disk value to remote cache");
+          await this.set(key, fallback.value);
+        }
         return fallback;
       }
       console.error(error);
@@ -81,10 +84,10 @@ var CacheHandler = class {
       value: data,
       lastModified: Date.now()
     };
-    key = this.generateKey(key, this.keyPrefix);
-    console.log(`SET: ${key}`);
+    const remoteKey = this.generateKey(key, this.keyPrefix);
+    console.log(`SET: ${key}`, JSON.stringify(payload));
     try {
-      const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
+      const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${remoteKey}`, {
         method: "PUT",
         body: JSON.stringify(payload),
         headers: {
