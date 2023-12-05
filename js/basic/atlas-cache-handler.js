@@ -54,7 +54,6 @@ var CacheHandler = class {
     });
   }
   async get(key) {
-    console.time("get");
     key = this.generateKey(key, this.keyPrefix);
     console.log(`GET: ${key}`);
     try {
@@ -67,21 +66,17 @@ var CacheHandler = class {
       });
       this.checkStatus(response);
       const json = await response.json();
-      console.timeEnd("get");
       return json;
     } catch (error) {
       if (error instanceof HTTPNotFoundError) {
-        console.log("fallback");
+        console.log("fallback to disk");
         const fallback = await this.filesystemCache.get(...arguments);
-        console.timeEnd("get");
         return fallback;
       }
       console.error(error);
-      console.timeEnd("get");
     }
   }
   async set(key, data, ctx) {
-    console.time("set");
     const payload = {
       value: data,
       lastModified: Date.now()
@@ -89,8 +84,6 @@ var CacheHandler = class {
     key = this.generateKey(key, this.keyPrefix);
     console.log(`SET: ${key}`);
     try {
-      await this.filesystemCache.set(...arguments);
-      console.timeLog("set");
       const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
         method: "PUT",
         body: JSON.stringify(payload),
@@ -104,7 +97,11 @@ var CacheHandler = class {
     } catch (error) {
       console.error(error);
     }
-    console.timeEnd("set");
+    try {
+      await this.filesystemCache.set(...arguments);
+    } catch (error) {
+      console.error(error);
+    }
   }
   async revalidateTag(tag) {
     console.log(`REVALIDATE TAG: ${tag}`);
@@ -114,7 +111,7 @@ var CacheHandler = class {
     if (response.status === 404) {
       throw new HTTPNotFoundError(response);
     }
-    if (response.status < 200 && response.status >= 300) {
+    if (response.status < 200 || response.status >= 300) {
       throw new HTTPResponseError(response);
     }
   }
