@@ -47,7 +47,7 @@ var CacheHandler = class {
   constructor(options) {
     this.keyPrefix = ".atlas";
     this.filesystemCache = new import_file_system_cache.default(...arguments);
-    this.kvStoreURL = process.env.ATLAS_CACHE_URL ?? "http://localhost:8083/kv";
+    this.kvStoreURL = process.env.ATLAS_CACHE_URL ?? "https://kv-store.kv-store.svc.cluster.local/kv";
   }
   async get(key) {
     console.time("get");
