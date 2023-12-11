@@ -73,7 +73,7 @@ const nextConfig = {
     ]
   },
   experimental: {
-    incrementalCacheHandlerPath: require.resolve('./.atlas/atlas-cache-handler.js'),
+    incrementalCacheHandlerPath: require.resolve('./atlas-cache-handler.js'),
     isrMemoryCacheSize: 0
   },
 }
