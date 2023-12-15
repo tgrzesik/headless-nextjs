@@ -2,6 +2,7 @@
  * @type {import('next').NextConfig}
  */
 
+
 const nextConfig = {
   transpilePackages: ['@aws-sdk/client-s3'],
   // output: 'standalone',
@@ -72,21 +73,20 @@ const nextConfig = {
       },
     ]
   },
-  experimental: {
-    incrementalCacheHandlerPath: icr(),
-    isrMemoryCacheSize: 0
-  },
+  experimental: icr(),
 }
 
 module.exports = nextConfig
 
 
 function icr() {
-  if (process.env.ATLAS_CACHE_HANDLER !== undefined) {
+  if (process.env.ATLAS_CACHE_HANDLER !== undefined || process.env.ATLAS_CACHE_HANDLER_ENABLED !== undefined) {
     console.log('custom cache handler enabled')
-    return require.resolve('./atlas-cache-handler.js')
+    return {
+      incrementalCacheHandlerPath: require.resolve('./.atlas/atlas-cache-handler.js'),
+      isrMemoryCacheSize: 0
+    }
   }
 
-  console.log('custom cache handler not enabled')
-  return ""
+  return undefined
 }
