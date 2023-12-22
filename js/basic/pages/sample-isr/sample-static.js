@@ -37,6 +37,6 @@ export async function getStaticProps(context) {
       draftMode
     },
 
-    revalidate: 0,
+    revalidate: 1,
   }
 }
