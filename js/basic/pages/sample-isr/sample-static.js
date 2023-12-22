@@ -12,7 +12,7 @@ export default function Home({generated, draftMode}) {
         <h1 className="title">
             (ISR) Server Side Generated page
         </h1>
-        <p>Revalidated every 28 seconds, last revalidate: {generated} (DraftMode: {draftMode})</p>
+        <p>Revalidated every 2 seconds, last revalidate: {generated} (DraftMode: {draftMode})</p>
       </main>
     </div>
   )
@@ -37,6 +37,6 @@ export async function getStaticProps(context) {
       draftMode
     },
 
-    revalidate: 28,
+    revalidate: 2,
   }
 }
