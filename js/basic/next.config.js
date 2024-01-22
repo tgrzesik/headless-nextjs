@@ -4,7 +4,6 @@
 
 
 const nextConfig = {
-  transpilePackages: ['@aws-sdk/client-s3'],
   // output: 'standalone',
   async rewrites() {
     return {

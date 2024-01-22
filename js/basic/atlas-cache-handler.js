@@ -37,8 +37,10 @@ var import_file_system_cache = __toESM(require("next/dist/server/lib/incremental
 var import_node_fetch = __toESM(require("node-fetch"));
 var import_https = __toESM(require("https"));
 var HTTPResponseError = class extends Error {
-  constructor(response) {
-    super(`HTTP Error Response: ${response.status} ${response.statusText}`);
+  constructor(response, key) {
+    super(
+      `HTTP Error Response: ${response.status} ${response.statusText} for key: ${key}`
+    );
     this.response = response;
   }
 };
@@ -52,51 +54,69 @@ var CacheHandler = class {
     this.selfSignedAgent = new import_https.default.Agent({
       rejectUnauthorized: false
     });
+    this.debugMode = String(process.env.ATLAS_CACHE_HANDLER_DEBUG_MODE).toLowerCase() === "true";
+    this.skipRemoteCache = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
+    this.kvStoreToken = process.env.ATLAS_KV_STORE_TOKEN ?? "";
+    if (!this.skipRemoteCache && this.kvStoreToken === "") {
+      console.warn("ATLAS_KV_STORE_TOKEN is empty");
+    }
   }
   async get(key) {
+    if (this.skipRemoteCache) {
+      return await this.filesystemCache.get(...arguments);
+    }
     const remoteKey = this.generateKey(key, this.keyPrefix);
-    console.log(`GET: ${key}`);
+    this.debugLog(`GET ${key}`);
     try {
       const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${remoteKey}`, {
         agent: this.selfSignedAgent,
         headers: {
           "Content-Type": "application/json",
-          "x-kv-namespace": process.env.ATLAS_METADATA_ENV_ID
+          Authorization: `Bearer ${this.kvStoreToken}`
         }
       });
-      this.checkStatus(response);
+      this.validateCacheStatus(response, key);
       const json = await response.json();
       return json;
     } catch (error) {
       if (error instanceof HTTPNotFoundError) {
-        const fallback = await this.filesystemCache.get(...arguments);
-        if (fallback?.value != null) {
-          console.log("sending disk value to remote cache");
-          await this.set(key, fallback.value);
+        try {
+          const fallback = await this.filesystemCache.get(...arguments);
+          if (fallback?.value != null) {
+            this.debugLog(`Priming remote cache with ${key}`);
+            await this.set(key, fallback.value);
+          }
+          return fallback;
+        } catch (err) {
+          console.error(err);
+          return;
         }
-        return fallback;
       }
       console.error(error);
     }
   }
-  async set(key, data, ctx) {
+  async set(key, data) {
+    if (this.skipRemoteCache) {
+      await this.filesystemCache.set(...arguments);
+      return;
+    }
     const payload = {
       value: data,
       lastModified: Date.now()
     };
     const remoteKey = this.generateKey(key, this.keyPrefix);
-    console.log(`SET: ${key}`);
+    this.debugLog(`SET ${key}`);
     try {
       const response = await (0, import_node_fetch.default)(`${this.kvStoreURL}/${remoteKey}`, {
         method: "PUT",
         body: JSON.stringify(payload),
         headers: {
           "Content-Type": "application/json",
-          "x-kv-namespace": process.env.ATLAS_METADATA_ENV_ID
+          Authorization: `Bearer ${this.kvStoreToken}`
         },
         agent: this.selfSignedAgent
       });
-      this.checkStatus(response);
+      this.validateCacheStatus(response, key);
     } catch (error) {
       console.error(error);
     }
@@ -107,20 +127,24 @@ var CacheHandler = class {
     }
   }
   async revalidateTag(tag) {
-    console.log(`REVALIDATE TAG: ${tag}`);
     await this.filesystemCache.revalidateTag(...arguments);
   }
-  checkStatus(response) {
+  validateCacheStatus(response, key) {
     if (response.status === 404) {
-      throw new HTTPNotFoundError(response);
+      throw new HTTPNotFoundError(response, key);
     }
     if (response.status < 200 || response.status >= 300) {
-      throw new HTTPResponseError(response);
+      throw new HTTPResponseError(response, key);
     }
   }
   generateKey(key, prefix) {
     key = key.replace(/^\/+/g, "");
     const buildID = process.env.ATLAS_METADATA_BUILD_ID ?? "no-build-id";
     return `${prefix}/${buildID}/next/${key}`;
+  }
+  debugLog(msg) {
+    if (this.debugMode) {
+      console.debug("DEBUG: Cache Handler: " + msg);
+    }
   }
 };
