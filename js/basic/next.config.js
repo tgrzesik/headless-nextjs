@@ -80,12 +80,15 @@ module.exports = nextConfig
 
 function icr() {
   if (process.env.ATLAS_CACHE_HANDLER !== undefined || process.env.ATLAS_CACHE_HANDLER_ENABLED !== undefined) {
-    console.log('custom cache handler enabled')
     return {
-      incrementalCacheHandlerPath: require.resolve('./.atlas/atlas-cache-handler.js'),
+      incrementalCacheHandlerPath: require.resolve('./atlas/atlas-cache-handler.js'),
       isrMemoryCacheSize: 0
     }
   }
 
-  return undefined
+  console.log("USING REPO LOCAL CACHE HANDLER")
+  return {
+    incrementalCacheHandlerPath: require.resolve('./local-cache-handler.js'),
+    isrMemoryCacheSize: 0
+  }
 }
