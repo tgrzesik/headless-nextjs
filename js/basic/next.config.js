@@ -77,7 +77,6 @@ const nextConfig = {
 
 module.exports = nextConfig
 
-
 function icr() {
   if (process.env.ATLAS_CACHE_HANDLER_ENABLED !== undefined) {
     return {

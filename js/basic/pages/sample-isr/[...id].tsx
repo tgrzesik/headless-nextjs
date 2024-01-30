@@ -15,16 +15,8 @@ export async function getStaticPaths() {
   }
 }
 
-function delay(time) {
-  return new Promise(resolve => setTimeout(resolve, time));
-}
-
 // `getStaticPaths` requires using `getStaticProps`
 export async function getStaticProps(context) {
-  console.log("pausing...")
-  await delay(5000);
-  console.log("continuing...")
-
   let date = new Date();
   const generated = date.toString()
 
