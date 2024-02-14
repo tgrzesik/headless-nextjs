@@ -3,10 +3,11 @@ import { CacheHandler as CacheHandler$1 } from 'next/dist/server/lib/incremental
 
 declare class KV {
     #private;
+    readonly skipKVStore: boolean;
     readonly kvStoreURL: string;
     private readonly selfSignedAgent;
     private readonly kvStoreToken;
-    constructor();
+    constructor(skipKVStore: boolean);
     get(key: string): Promise<any>;
     set(key: string, data: any): Promise<void>;
 }

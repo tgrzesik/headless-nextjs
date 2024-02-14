@@ -93,7 +93,8 @@ var KVNotFoundError = class extends Error {
 };
 var _throwResponseErrors, throwResponseErrors_fn;
 var KV = class {
-  constructor() {
+  constructor(skipKVStore) {
+    this.skipKVStore = skipKVStore;
     /**
      * Convert response status codes to KV errors and throw them
      * @param response
@@ -102,14 +103,14 @@ var KV = class {
     __privateAdd(this, _throwResponseErrors);
     var _a, _b;
     this.kvStoreURL = (_a = process.env.ATLAS_CACHE_URL) != null ? _a : "";
-    if (this.kvStoreURL === "") {
+    if (!this.skipKVStore && this.kvStoreURL === "") {
       console.warn("Cache Handler: could not connect to remote cache");
     }
     this.selfSignedAgent = new import_https.default.Agent({
       rejectUnauthorized: false
     });
     this.kvStoreToken = (_b = process.env.ATLAS_KV_STORE_TOKEN) != null ? _b : "";
-    if (this.kvStoreToken === "") {
+    if (!this.skipKVStore && this.kvStoreToken === "") {
       console.warn("Cache Handler: could not connect to remote cache");
     }
   }
@@ -159,9 +160,9 @@ var CacheHandler = class {
     this.keyPrefix = ".atlas";
     var _a;
     this.filesystemCache = new import_file_system_cache.default(ctx);
-    this.kvStore = new KV();
     this.debug = String(process.env.ATLAS_CACHE_HANDLER_DEBUG).toLowerCase() === "true";
     this.skipKVStore = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
+    this.kvStore = new KV(this.skipKVStore);
     const percentEnv = (_a = process.env.ATLAS_CACHE_HANDLER_ROLLOUT_PERCENT) != null ? _a : "";
     const percentEnvNum = parseInt(percentEnv, 10);
     this.kvStoreRolloutPercent = isNaN(percentEnvNum) ? 100 : percentEnvNum;
