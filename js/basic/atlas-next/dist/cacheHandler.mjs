@@ -68,7 +68,10 @@ var KV = class {
      */
     __privateAdd(this, _throwResponseErrors);
     var _a, _b;
-    this.kvStoreURL = (_a = process.env.ATLAS_CACHE_URL) != null ? _a : "https://kv-store.kv-store.svc.cluster.local/kv";
+    this.kvStoreURL = (_a = process.env.ATLAS_CACHE_URL) != null ? _a : "";
+    if (this.kvStoreURL === "") {
+      console.warn("Cache Handler: could not connect to remote cache");
+    }
     this.selfSignedAgent = new https.Agent({
       rejectUnauthorized: false
     });
