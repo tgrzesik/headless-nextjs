@@ -138,17 +138,15 @@ var CacheHandler = class {
   get(...args) {
     return __async(this, null, function* () {
       const [key, ctx = {}] = args;
-      if (!this.kvStoreActive(key)) {
+      if (!this.kvStoreActive(key) || this.kvStore === void 0) {
         this.debugLog(`GET ${key} (skip remote store)`);
         return yield this.filesystemCache.get(key, ctx);
       }
       const remoteKey = this.generateKey(key, this.keyPrefix);
       this.debugLog(`GET ${key} ${remoteKey}`);
       try {
-        if (this.kvStore !== void 0) {
-          const data = yield this.kvStore.get(remoteKey);
-          return data;
-        }
+        const data = yield this.kvStore.get(remoteKey);
+        return data;
       } catch (error) {
         const is404 = error instanceof KVNotFoundError;
         if (!is404) {
@@ -171,7 +169,7 @@ var CacheHandler = class {
   set(...args) {
     return __async(this, null, function* () {
       const [key, data] = args;
-      if (!this.kvStoreActive(key)) {
+      if (!this.kvStoreActive(key) || this.kvStore === void 0) {
         this.debugLog(`SET ${key} (skip remote store)`);
         yield this.filesystemCache.set(...args);
         return;
@@ -187,9 +185,7 @@ var CacheHandler = class {
       const remoteKey = this.generateKey(key, this.keyPrefix);
       this.debugLog(`SET ${key} ${remoteKey}`);
       try {
-        if (this.kvStore !== void 0) {
-          yield this.kvStore.set(remoteKey, cacheEntry);
-        }
+        yield this.kvStore.set(remoteKey, cacheEntry);
       } catch (error) {
         console.error(this.getErrorMessage(error));
       }
@@ -221,6 +217,9 @@ var CacheHandler = class {
    * Should the KV Store be used for this key?
    */
   kvStoreActive(key) {
+    if (this.kvStore === void 0) {
+      return false;
+    }
     if (this.skipKVStore) {
       return false;
     }
