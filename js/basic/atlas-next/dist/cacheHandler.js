@@ -93,8 +93,7 @@ var KVNotFoundError = class extends Error {
 };
 var _throwResponseErrors, throwResponseErrors_fn;
 var KV = class {
-  constructor(skipKVStore) {
-    this.skipKVStore = skipKVStore;
+  constructor() {
     /**
      * Convert response status codes to KV errors and throw them
      * @param response
@@ -102,16 +101,16 @@ var KV = class {
      */
     __privateAdd(this, _throwResponseErrors);
     var _a, _b;
-    this.kvStoreURL = (_a = process.env.ATLAS_CACHE_URL) != null ? _a : "";
-    if (!this.skipKVStore && this.kvStoreURL === "") {
-      console.warn("Cache Handler: could not connect to remote cache");
+    this.kvStoreURL = (_a = process.env.ATLAS_KV_STORE_URL) != null ? _a : "";
+    if (this.kvStoreURL === "") {
+      throw new Error("KV: could not connect to remote kv store");
     }
     this.selfSignedAgent = new import_https.default.Agent({
       rejectUnauthorized: false
     });
     this.kvStoreToken = (_b = process.env.ATLAS_KV_STORE_TOKEN) != null ? _b : "";
-    if (!this.skipKVStore && this.kvStoreToken === "") {
-      console.warn("Cache Handler: could not connect to remote cache");
+    if (this.kvStoreToken === "") {
+      throw new Error("KV: could not connect to remote kv store");
     }
   }
   get(key) {
@@ -162,7 +161,9 @@ var CacheHandler = class {
     this.filesystemCache = new import_file_system_cache.default(ctx);
     this.debug = String(process.env.ATLAS_CACHE_HANDLER_DEBUG).toLowerCase() === "true";
     this.skipKVStore = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
-    this.kvStore = new KV(this.skipKVStore);
+    if (!this.skipKVStore) {
+      this.kvStore = new KV();
+    }
     const percentEnv = (_a = process.env.ATLAS_CACHE_HANDLER_ROLLOUT_PERCENT) != null ? _a : "";
     const percentEnvNum = parseInt(percentEnv, 10);
     this.kvStoreRolloutPercent = isNaN(percentEnvNum) ? 100 : percentEnvNum;
@@ -177,8 +178,10 @@ var CacheHandler = class {
       const remoteKey = this.generateKey(key, this.keyPrefix);
       this.debugLog(`GET ${key} ${remoteKey}`);
       try {
-        const data = yield this.kvStore.get(remoteKey);
-        return data;
+        if (this.kvStore !== void 0) {
+          const data = yield this.kvStore.get(remoteKey);
+          return data;
+        }
       } catch (error) {
         const is404 = error instanceof KVNotFoundError;
         if (!is404) {
@@ -217,7 +220,9 @@ var CacheHandler = class {
       const remoteKey = this.generateKey(key, this.keyPrefix);
       this.debugLog(`SET ${key} ${remoteKey}`);
       try {
-        yield this.kvStore.set(remoteKey, cacheEntry);
+        if (this.kvStore !== void 0) {
+          yield this.kvStore.set(remoteKey, cacheEntry);
+        }
       } catch (error) {
         console.error(this.getErrorMessage(error));
       }

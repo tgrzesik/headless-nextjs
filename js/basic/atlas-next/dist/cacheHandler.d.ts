@@ -3,11 +3,10 @@ import { CacheHandler as CacheHandler$1 } from 'next/dist/server/lib/incremental
 
 declare class KV {
     #private;
-    readonly skipKVStore: boolean;
     readonly kvStoreURL: string;
     private readonly selfSignedAgent;
     private readonly kvStoreToken;
-    constructor(skipKVStore: boolean);
+    constructor();
     get(key: string): Promise<any>;
     set(key: string, data: any): Promise<void>;
 }
@@ -15,7 +14,7 @@ declare class KV {
 type FileSystemCacheContext = ConstructorParameters<typeof IncrementalCache>[0];
 declare class CacheHandler {
     readonly keyPrefix = ".atlas";
-    readonly kvStore: KV;
+    readonly kvStore?: KV;
     filesystemCache: IncrementalCache;
     private readonly skipKVStore;
     private readonly kvStoreRolloutPercent;
