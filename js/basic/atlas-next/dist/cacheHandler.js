@@ -91,6 +91,7 @@ var KVError = class extends Error {
 };
 var KVNotFoundError = class extends Error {
 };
+var version = "[VI]{{inject}}[/VI]";
 var _throwResponseErrors, throwResponseErrors_fn;
 var KV = class {
   constructor() {
@@ -115,7 +116,8 @@ var KV = class {
       const response = yield (0, import_node_fetch.default)(`${this.kvStoreURL}/${key}`, {
         agent: this.selfSignedAgent,
         headers: {
-          Authorization: `Bearer ${this.kvStoreToken}`
+          Authorization: `Bearer ${this.kvStoreToken}`,
+          "User-Agent": "AtlasNext/" + version
         }
       });
       __privateMethod(this, _throwResponseErrors, throwResponseErrors_fn).call(this, response, key);
@@ -132,7 +134,8 @@ var KV = class {
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.kvStoreToken}`
+          Authorization: `Bearer ${this.kvStoreToken}`,
+          "User-Agent": "AtlasNext/" + version
         },
         agent: this.selfSignedAgent
       });
