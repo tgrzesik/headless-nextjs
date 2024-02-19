@@ -91,7 +91,7 @@ var KVError = class extends Error {
 };
 var KVNotFoundError = class extends Error {
 };
-var version = "[VI]{{inject}}[/VI]";
+var version = "1.0.0-alpha.0";
 var _throwResponseErrors, throwResponseErrors_fn;
 var KV = class {
   constructor() {
@@ -102,13 +102,20 @@ var KV = class {
      */
     __privateAdd(this, _throwResponseErrors);
     var _a, _b;
-    this.kvStoreURL = (_a = process.env.ATLAS_CACHE_URL) != null ? _a : "https://kv-store.kv-store.svc.cluster.local/kv";
+    this.kvStoreURL = (_a = process.env.ATLAS_KV_STORE_URL) != null ? _a : "";
+    if (this.kvStoreURL === "") {
+      console.warn(
+        "KV: could not connect to remote kv store - URL env var is missing"
+      );
+    }
     this.selfSignedAgent = new import_https.default.Agent({
       rejectUnauthorized: false
     });
     this.kvStoreToken = (_b = process.env.ATLAS_KV_STORE_TOKEN) != null ? _b : "";
     if (this.kvStoreToken === "") {
-      console.warn("Cache Handler: could not connect to remote cache");
+      console.warn(
+        "KV: could not connect to remote kv store - token env var is missing"
+      );
     }
   }
   get(key) {
@@ -159,9 +166,11 @@ var CacheHandler = class {
     this.keyPrefix = ".atlas";
     var _a;
     this.filesystemCache = new import_file_system_cache.default(ctx);
-    this.kvStore = new KV();
     this.debug = String(process.env.ATLAS_CACHE_HANDLER_DEBUG).toLowerCase() === "true";
     this.skipKVStore = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
+    if (!this.skipKVStore) {
+      this.kvStore = new KV();
+    }
     const percentEnv = (_a = process.env.ATLAS_CACHE_HANDLER_ROLLOUT_PERCENT) != null ? _a : "";
     const percentEnvNum = parseInt(percentEnv, 10);
     this.kvStoreRolloutPercent = isNaN(percentEnvNum) ? 100 : percentEnvNum;
@@ -169,7 +178,7 @@ var CacheHandler = class {
   get(...args) {
     return __async(this, null, function* () {
       const [key, ctx = {}] = args;
-      if (!this.kvStoreActive(key)) {
+      if (!this.kvStoreActive(key) || this.kvStore === void 0) {
         this.debugLog(`GET ${key} (skip remote store)`);
         return yield this.filesystemCache.get(key, ctx);
       }
@@ -200,7 +209,7 @@ var CacheHandler = class {
   set(...args) {
     return __async(this, null, function* () {
       const [key, data] = args;
-      if (!this.kvStoreActive(key)) {
+      if (!this.kvStoreActive(key) || this.kvStore === void 0) {
         this.debugLog(`SET ${key} (skip remote store)`);
         yield this.filesystemCache.set(...args);
         return;

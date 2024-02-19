@@ -1,4 +1,5 @@
 import { defineConfig } from "tsup";
+import { esbuildPluginVersionInjector } from 'esbuild-plugin-version-injector';
 
 export default defineConfig({
   entry: ["src/cache-handler/cacheHandler.ts"],
@@ -7,5 +8,6 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ["@wpengine/atlas-next"]
+  external: ["@wpengine/atlas-next"],
+  esbuildPlugins: [esbuildPluginVersionInjector()]
 });
