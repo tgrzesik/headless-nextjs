@@ -58,6 +58,7 @@ var KVError = class extends Error {
 };
 var KVNotFoundError = class extends Error {
 };
+var version = "1.0.0-alpha.0";
 var _throwResponseErrors, throwResponseErrors_fn;
 var KV = class {
   constructor() {
@@ -70,14 +71,18 @@ var KV = class {
     var _a, _b;
     this.kvStoreURL = (_a = process.env.ATLAS_KV_STORE_URL) != null ? _a : "";
     if (this.kvStoreURL === "") {
-      throw new Error("KV: could not connect to remote kv store");
+      console.warn(
+        "KV: could not connect to remote kv store - URL env var is missing"
+      );
     }
     this.selfSignedAgent = new https.Agent({
       rejectUnauthorized: false
     });
     this.kvStoreToken = (_b = process.env.ATLAS_KV_STORE_TOKEN) != null ? _b : "";
     if (this.kvStoreToken === "") {
-      throw new Error("KV: could not connect to remote kv store");
+      console.warn(
+        "KV: could not connect to remote kv store - token env var is missing"
+      );
     }
   }
   get(key) {
@@ -85,7 +90,8 @@ var KV = class {
       const response = yield fetch(`${this.kvStoreURL}/${key}`, {
         agent: this.selfSignedAgent,
         headers: {
-          Authorization: `Bearer ${this.kvStoreToken}`
+          Authorization: `Bearer ${this.kvStoreToken}`,
+          "User-Agent": "AtlasNext/" + version
         }
       });
       __privateMethod(this, _throwResponseErrors, throwResponseErrors_fn).call(this, response, key);
@@ -102,7 +108,8 @@ var KV = class {
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.kvStoreToken}`
+          Authorization: `Bearer ${this.kvStoreToken}`,
+          "User-Agent": "AtlasNext/" + version
         },
         agent: this.selfSignedAgent
       });
@@ -127,8 +134,8 @@ var CacheHandler = class {
     var _a;
     this.filesystemCache = new FileSystemCache(ctx);
     this.debug = String(process.env.ATLAS_CACHE_HANDLER_DEBUG).toLowerCase() === "true";
-    this.skipKVStore = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
-    if (!this.skipKVStore) {
+    this.useKVStore = String(process.env.K_INTERNAL_POD_NAMESPACE).toLowerCase() === "true";
+    if (this.useKVStore) {
       this.kvStore = new KV();
     }
     const percentEnv = (_a = process.env.ATLAS_CACHE_HANDLER_ROLLOUT_PERCENT) != null ? _a : "";
@@ -217,10 +224,7 @@ var CacheHandler = class {
    * Should the KV Store be used for this key?
    */
   kvStoreActive(key) {
-    if (this.kvStore === void 0) {
-      return false;
-    }
-    if (this.skipKVStore) {
+    if (!this.useKVStore) {
       return false;
     }
     if (this.kvStoreRolloutPercent >= 100) {

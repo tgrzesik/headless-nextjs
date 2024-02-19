@@ -16,7 +16,7 @@ declare class CacheHandler {
     readonly keyPrefix = ".atlas";
     readonly kvStore?: KV;
     filesystemCache: IncrementalCache;
-    private readonly skipKVStore;
+    private readonly useKVStore;
     private readonly kvStoreRolloutPercent;
     private readonly debug;
     constructor(ctx: FileSystemCacheContext);

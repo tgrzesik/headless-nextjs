@@ -42,6 +42,7 @@
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
+    "esbuild-plugin-version-injector": "^1.2.1",
     "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard-with-typescript": "^39.1.1",
