@@ -68,19 +68,14 @@ var KV = class {
   // The atlas-next package version will be injected from package.json
   // at build time by esbuild-plugin-version-injector
   version = "1.0.0-alpha.0";
-  static isAvailable() {
-    const urlExists = (process.env.ATLAS_KV_STORE_URL ?? "") !== "";
-    const tokenExists = (process.env.ATLAS_KV_STORE_TOKEN ?? "") !== "";
-    return urlExists && tokenExists;
-  }
   constructor() {
-    this.url = process.env.ATLAS_KV_STORE_URL ?? "";
+    this.url = process.env.ATLAS_KV_STORE_URL_TEST ?? "";
     if (this.url === "") {
-      throw new Error("KV: ATLAS_KV_STORE_URL env var is missing");
+      throw new Error("KV: ATLAS_KV_STORE_URL_TEST env var is missing");
     }
-    this.token = process.env.ATLAS_KV_STORE_TOKEN ?? "";
+    this.token = process.env.ATLAS_KV_STORE_TOKEN_TEST ?? "";
     if (this.token === "") {
-      throw new Error("KV: ATLAS_KV_STORE_TOKEN env var is missing");
+      throw new Error("KV: ATLAS_KV_STORE_TOKEN_TEST env var is missing");
     }
     this.selfSignedAgent = new import_https.default.Agent({
       rejectUnauthorized: false
@@ -139,10 +134,10 @@ var CacheHandler = class {
   buildID;
   constructor(ctx) {
     this.filesystemCache = new import_file_system_cache.default(ctx);
-    this.debug = String(process.env.ATLAS_CACHE_HANDLER_DEBUG).toLowerCase() === "true";
+    this.debug = true;
     this.isBuild = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
     this.buildID = process.env.ATLAS_METADATA_BUILD_ID ?? "no-build-id";
-    if (KV.isAvailable()) {
+    if (!this.isBuild) {
       this.kvStore = new KV();
       this.debugLog("KV store enabled");
     }
