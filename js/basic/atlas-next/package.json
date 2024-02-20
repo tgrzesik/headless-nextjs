@@ -34,6 +34,7 @@
     "test:coverage": "nyc --remap-after-coverage=false --reporter=lcovonly --reporter=html --reporter=text --reporter=text-summary npm test"
   },
   "devDependencies": {
+    "@tsconfig/node18": "^18.2.2",
     "@types/chai": "^4.3.11",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.6",
