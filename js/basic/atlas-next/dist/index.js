@@ -137,10 +137,8 @@ var CacheHandler = class {
     this.debug = true;
     this.isBuild = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
     this.buildID = process.env.ATLAS_METADATA_BUILD_ID ?? "no-build-id";
-    if (!this.isBuild) {
-      this.kvStore = new KV();
-      this.debugLog("KV store enabled");
-    }
+    this.kvStore = new KV();
+    this.debugLog("KV store enabled");
     const defaultPercent = 100;
     const percentEnv = process.env.ATLAS_CACHE_HANDLER_ROLLOUT_PERCENT ?? "";
     const percentEnvNum = parseInt(percentEnv, 10);
