@@ -1,7 +1,7 @@
 /**
  * @type {import('next').NextConfig}
  */
-const { withAtlasConfig } = require("@wpengine/atlas-next")
+import { withAtlasConfig } from "@wpengine/atlas-next"
 
 const nextConfig = {
   // output: 'standalone',
@@ -71,7 +71,7 @@ const nextConfig = {
         ],
       },
     ]
-  }
+  },
 }
 
-module.exports = withAtlasConfig(nextConfig, {})
+export default withAtlasConfig(nextConfig, {})
