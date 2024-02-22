@@ -60,6 +60,12 @@ export default async function Home() {
           </h2>
         </Link>
       </div>
+
+      <div className={styles.grid}>
+        <h2>
+          {data[0].name}
+        </h2>
+      </div>
     </main>
   )
 }

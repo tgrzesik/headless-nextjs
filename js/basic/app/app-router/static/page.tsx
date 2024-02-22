@@ -20,9 +20,21 @@ export default async function Home() {
     <main className={styles.main}>
       <div className={styles.description}>
         <div>
-          <Link href="/app-router/dynamic">
-            Dynamic
-          </Link>
+          <a
+            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            By{' '}
+            <Image
+              src="/vercel.svg"
+              alt="Vercel Logo"
+              className={styles.vercelLogo}
+              width={100}
+              height={24}
+              priority
+            />
+          </a>
         </div>
       </div>
 
@@ -43,6 +55,12 @@ export default async function Home() {
           Dynamic<span>-&gt;</span>
           </h2>
         </Link>
+      </div>
+
+      <div className={styles.grid}>
+      <h2>
+          {data[0].name}
+        </h2>
       </div>
     </main>
   )
