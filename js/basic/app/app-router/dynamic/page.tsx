@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import styles from '../page.module.css'
 import { headers } from 'next/headers'
+import Link from 'next/link'
 
 async function getData() {
   const res = await fetch('https://api.openbrewerydb.org/v1/breweries/random?size=1', { next: { revalidate: 15, tags: ["brew"] } })
@@ -53,30 +54,11 @@ export default async function Home() {
       </div>
 
       <div className={styles.grid}>
-        <a
-          href="#"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <Link href="/app-router/static" className={styles.card}>
           <h2>
-            Random Open Brewery API Response<span>-&gt;</span>
+          Static<span>-&gt;</span>
           </h2>
-          <p>{data[0].name}</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Revalidate<span>-&gt;</span>
-          </h2>
-          <p>{referer}</p>
-          <p>OD Revalidate the page</p>
-        </a>
+        </Link>
       </div>
     </main>
   )

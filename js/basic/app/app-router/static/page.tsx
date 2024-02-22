@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import styles from '../page.module.css'
+import Link from 'next/link'
 
 async function getData() {
   const res = await fetch('https://api.openbrewerydb.org/v1/breweries/random?size=1', { next: { revalidate: 15, tags: ["brew"] } })
@@ -19,21 +20,9 @@ export default async function Home() {
     <main className={styles.main}>
       <div className={styles.description}>
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+          <Link href="/app-router/dynamic">
+            Dynamic
+          </Link>
         </div>
       </div>
 
@@ -49,17 +38,11 @@ export default async function Home() {
       </div>
 
       <div className={styles.grid}>
-        <a
-          href="#"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <Link href="/app-router/dynamic" className={styles.card}>
           <h2>
-            Random Open Brewery API Response<span>-&gt;</span>
+          Dynamic<span>-&gt;</span>
           </h2>
-          <p>{data[0].name}</p>
-        </a>
+        </Link>
       </div>
     </main>
   )
