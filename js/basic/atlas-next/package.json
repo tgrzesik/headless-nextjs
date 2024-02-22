@@ -1,6 +1,6 @@
 {
   "name": "@wpengine/atlas-next",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.0",
   "description": "Improved Next.js support on WP Engine Atlas",
   "author": "WP Engine",
   "license": "MIT",

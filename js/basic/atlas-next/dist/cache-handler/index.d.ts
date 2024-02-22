@@ -25,6 +25,10 @@ declare class RemoteCacheHandler {
     private getErrorMessage;
     private debugLog;
     /**
+     * Is the KV Store available for use?
+     */
+    private isKVStoreAvailable;
+    /**
      * Should the KV Store be used for this key?
      */
     private useKVStore;

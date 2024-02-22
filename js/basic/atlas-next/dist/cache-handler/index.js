@@ -67,7 +67,7 @@ var KV = class {
   selfSignedAgent;
   // The atlas-next package version will be injected from package.json
   // at build time by esbuild-plugin-version-injector
-  version = "1.0.0-beta.1";
+  version = "1.0.0-beta.0";
   static isAvailable() {
     const urlExists = (process.env.ATLAS_KV_STORE_URL ?? "") !== "";
     const tokenExists = (process.env.ATLAS_KV_STORE_TOKEN ?? "") !== "";
@@ -142,19 +142,12 @@ var RemoteCacheHandler = class {
     this.debug = String(process.env.ATLAS_CACHE_HANDLER_DEBUG).toLowerCase() === "true";
     this.isBuild = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
     this.buildID = process.env.ATLAS_METADATA_BUILD_ID ?? "";
-    if (!this.isBuild) {
-      if (this.buildID === "") {
-        console.log(
-          "Warning: ATLAS_METADATA_BUILD_ID is missing, remote cache disabled"
-        );
-      }
-      if (KV.isAvailable()) {
-        try {
-          this.kvStore = new KV();
-          this.debugLog("KV store enabled");
-        } catch (error) {
-          console.error(this.getErrorMessage(error));
-        }
+    if (this.isKVStoreAvailable()) {
+      try {
+        this.kvStore = new KV();
+        this.debugLog("KV store enabled");
+      } catch (error) {
+        console.error(this.getErrorMessage(error));
       }
     }
     const defaultPercent = 100;
@@ -233,16 +226,28 @@ var RemoteCacheHandler = class {
     }
   }
   /**
-   * Should the KV Store be used for this key?
+   * Is the KV Store available for use?
    */
-  useKVStore(key) {
-    if (this.kvStore === void 0) {
-      return false;
-    }
+  isKVStoreAvailable() {
     if (this.isBuild) {
       return false;
     }
     if (this.buildID === "") {
+      console.log(
+        "Warning: ATLAS_METADATA_BUILD_ID is missing, remote cache disabled"
+      );
+      return false;
+    }
+    if (!KV.isAvailable()) {
+      return false;
+    }
+    return true;
+  }
+  /**
+   * Should the KV Store be used for this key?
+   */
+  useKVStore(key) {
+    if (this.kvStore === void 0) {
       return false;
     }
     if (this.kvStoreRolloutPercent >= 100) {
