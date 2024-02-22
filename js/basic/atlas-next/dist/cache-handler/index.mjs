@@ -196,13 +196,13 @@ var RemoteCacheHandler = class {
     if (this.isBuild) {
       return false;
     }
+    if (!KV.isAvailable()) {
+      return false;
+    }
     if (this.buildID === "") {
       console.log(
         "Warning: ATLAS_METADATA_BUILD_ID is missing, remote cache disabled"
       );
-      return false;
-    }
-    if (!KV.isAvailable()) {
       return false;
     }
     return true;
