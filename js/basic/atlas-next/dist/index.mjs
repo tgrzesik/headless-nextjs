@@ -1,206 +1,80 @@
-// src/cache-handler/cacheHandler.ts
-import FileSystemCache from "next/dist/server/lib/incremental-cache/file-system-cache";
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+}) : x)(function(x) {
+  if (typeof require !== "undefined")
+    return require.apply(this, arguments);
+  throw Error('Dynamic require of "' + x + '" is not supported');
+});
 
-// src/cache-handler/rollout.ts
-import crypto from "crypto";
-function rolloutKVStoreForKey(key, rolloutPercent) {
-  const hash = crypto.createHash("sha256");
-  hash.update(key);
-  const buf = hash.digest();
-  const hashInt = buf.readUIntBE(0, 4);
-  return rolloutPercent > hashInt % 100 + 1;
-}
-
-// src/cache-handler/kv.ts
-import fetch from "node-fetch";
-import https from "https";
-var KVError = class extends Error {
-  response;
-  constructor(response, key) {
-    super(
-      `HTTP Error Response: ${response.status} ${response.statusText} for key: ${key}`
+// src/config.ts
+import path from "path";
+function withAtlasConfig(nextConfig, atlasConfig) {
+  if (atlasConfig?.remoteCacheHandler === false) {
+    return nextConfig;
+  }
+  const nextModulePath = path.parse(__require.resolve("next"));
+  const nextPackage = __require(path.join(nextModulePath.dir, "../../package.json"));
+  try {
+    return setCacheHandler(
+      nextConfig,
+      nextPackage.version,
+      // TODO: look closer how this can be stubbed to enable testing
+      // of the withAtlasConfig function
+      __require.resolve("@wpengine/atlas-next/cache-handler")
     );
-    this.response = response;
+  } catch (error) {
+    console.warn("Setting cache handler config", error);
+    return nextConfig;
   }
-};
-var KVNotFoundError = class extends Error {
-};
-var KV = class {
-  token;
-  url;
-  selfSignedAgent;
-  // The atlas-next package version will be injected from package.json
-  // at build time by esbuild-plugin-version-injector
-  version = "1.0.0-alpha.0";
-  constructor() {
-    this.url = process.env.ATLAS_KV_STORE_URL_TEST ?? "";
-    if (this.url === "") {
-      throw new Error("KV: ATLAS_KV_STORE_URL_TEST env var is missing");
-    }
-    this.token = process.env.ATLAS_KV_STORE_TOKEN_TEST ?? "";
-    if (this.token === "") {
-      throw new Error("KV: ATLAS_KV_STORE_TOKEN_TEST env var is missing");
-    }
-    this.selfSignedAgent = new https.Agent({
-      rejectUnauthorized: false
-    });
+}
+function setCacheHandler(nextConfig, nextVersion, cacheHandlerPath) {
+  if (compare(nextVersion, "12.2.0") === -1 || compare(nextVersion, "13.4") === 0) {
+    throw new Error(
+      "The Atlas remote cache handler does not support Next.js version " + nextVersion
+    );
   }
-  async get(key) {
-    const response = await fetch(`${this.url}/${key}`, {
-      agent: this.selfSignedAgent,
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        "User-Agent": `AtlasNext/${this.version}`
-      }
-    });
-    this.throwResponseErrors(response, key);
-    return await response.json();
+  if (compare(nextVersion, "14.1.0") === -1) {
+    nextConfig.experimental = nextConfig.experimental ?? {};
+    nextConfig.experimental.incrementalCacheHandlerPath = cacheHandlerPath;
+    nextConfig.experimental.isrMemoryCacheSize = 0;
+    return nextConfig;
   }
-  async set(key, data) {
-    if (data === null) {
-      return;
-    }
-    const response = await fetch(`${this.url}/${key}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.token}`,
-        "User-Agent": `AtlasNext/${this.version}`
-      },
-      agent: this.selfSignedAgent
-    });
-    this.throwResponseErrors(response, key);
+  nextConfig.cacheHandler = cacheHandlerPath;
+  nextConfig.cacheMaxMemorySize = 0;
+  return nextConfig;
+}
+function compare(v1, v2) {
+  validateVersion(v1);
+  validateVersion(v2);
+  const v1Parts = v1.split(".");
+  const v1Major = v1Parts[0];
+  const v1Minor = v1Parts[1];
+  const v2Parts = v2.split(".");
+  const v2Major = v2Parts[0];
+  const v2Minor = v2Parts[1];
+  const v1MinorLesserOrEqual = v1Minor < v2Minor ? -1 : 0;
+  const compareMinorVersions = v1Minor > v2Minor ? 1 : v1MinorLesserOrEqual;
+  const v1MajorLesserOrEqual = v1Major < v2Major ? -1 : compareMinorVersions;
+  return v1Major > v2Major ? 1 : v1MajorLesserOrEqual;
+}
+function validateVersion(version) {
+  if (version.length === 0) {
+    throw new Error("invalid version");
   }
-  /**
-   * Convert response status codes to KV errors and throw them
-   * @param response
-   * @param key
-   */
-  throwResponseErrors(response, key) {
-    if (response.status === 404) {
-      throw new KVNotFoundError();
-    }
-    if (response.status < 200 || response.status >= 300) {
-      throw new KVError(response, key);
-    }
+  const parts = version.split(".");
+  if (parts.length < 2) {
+    throw new Error("invalid version");
   }
-};
-
-// src/cache-handler/cacheHandler.ts
-var CacheHandler = class {
-  debug;
-  filesystemCache;
-  keyPrefix = ".atlas";
-  kvStore;
-  kvStoreRolloutPercent;
-  isBuild;
-  buildID;
-  constructor(ctx) {
-    this.filesystemCache = new FileSystemCache(ctx);
-    this.debug = true;
-    this.isBuild = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
-    this.buildID = process.env.ATLAS_METADATA_BUILD_ID ?? "no-build-id";
-    this.kvStore = new KV();
-    this.debugLog("KV store enabled");
-    const defaultPercent = 100;
-    const percentEnv = process.env.ATLAS_CACHE_HANDLER_ROLLOUT_PERCENT ?? "";
-    const percentEnvNum = parseInt(percentEnv, 10);
-    this.kvStoreRolloutPercent = isNaN(percentEnvNum) ? defaultPercent : percentEnvNum;
+  const major = parts[0];
+  if (major.length === 0 || isNaN(Number(major))) {
+    throw new Error("invalid version");
   }
-  async get(...args) {
-    const [key, ctx = {}] = args;
-    if (!this.useKVStore(key)) {
-      this.debugLog(`GET ${key} (skip remote store)`);
-      return await this.filesystemCache.get(key, ctx);
-    }
-    const remoteKey = this.generateKey(key);
-    this.debugLog(`GET ${key} ${remoteKey}`);
-    try {
-      const data = await this.kvStore?.get(remoteKey);
-      return data;
-    } catch (error) {
-      const is404 = error instanceof KVNotFoundError;
-      if (!is404) {
-        console.error(this.getErrorMessage(error));
-      }
-      try {
-        const fsData = await this.filesystemCache.get(key, ctx);
-        if (is404 && fsData?.value != null) {
-          this.debugLog(`priming remote cache with ${key}`);
-          await this.set(key, fsData.value, {});
-        }
-        return fsData;
-      } catch (err) {
-        console.error(this.getErrorMessage(err));
-        return null;
-      }
-    }
+  const minor = parts[1];
+  if (minor.length === 0 || isNaN(Number(minor))) {
+    throw new Error("invalid version");
   }
-  async set(...args) {
-    const [key, data] = args;
-    if (!this.useKVStore(key)) {
-      this.debugLog(`SET ${key} (skip remote store)`);
-      await this.filesystemCache.set(...args);
-      return;
-    }
-    if (data === null) {
-      this.debugLog(`SET ${key} (skip remote store, data is null)`);
-      return;
-    }
-    const cacheEntry = {
-      lastModified: Date.now(),
-      value: data
-    };
-    const remoteKey = this.generateKey(key);
-    this.debugLog(`SET ${key} ${remoteKey}`);
-    try {
-      await this.kvStore?.set(remoteKey, cacheEntry);
-    } catch (error) {
-      console.error(this.getErrorMessage(error));
-    }
-    await this.filesystemCache.set(...args);
-  }
-  async revalidateTag(...args) {
-    await this.filesystemCache.revalidateTag(...args);
-  }
-  generateKey(key) {
-    key = key.replace(/^\/+/g, "");
-    return `${this.keyPrefix}/${this.buildID}/next/${key}`;
-  }
-  getErrorMessage(error) {
-    if (error instanceof Error)
-      return error.message;
-    return String(error);
-  }
-  debugLog(msg) {
-    if (this.debug) {
-      console.debug("DEBUG: Cache Handler: " + msg);
-    }
-  }
-  /**
-   * Should the KV Store be used for this key?
-   */
-  useKVStore(key) {
-    if (this.kvStore == null) {
-      return false;
-    }
-    if (this.isBuild) {
-      return false;
-    }
-    if (this.kvStoreRolloutPercent >= 100) {
-      return true;
-    }
-    if (this.kvStoreRolloutPercent <= 0) {
-      return false;
-    }
-    return rolloutKVStoreForKey(key, this.kvStoreRolloutPercent);
-  }
-};
-
-// src/cache-handler/index.ts
-var cache_handler_default = CacheHandler;
+}
 export {
-  cache_handler_default as default
+  withAtlasConfig
 };
 //# sourceMappingURL=index.mjs.map

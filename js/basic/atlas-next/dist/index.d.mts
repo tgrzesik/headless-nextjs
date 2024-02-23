@@ -1,26 +1,17 @@
-import IncrementalCache from 'next/dist/server/lib/incremental-cache/file-system-cache';
-import { CacheHandler as CacheHandler$1 } from 'next/dist/server/lib/incremental-cache';
+import { NextConfig } from 'next';
 
-type FileSystemCacheContext = ConstructorParameters<typeof IncrementalCache>[0];
-declare class CacheHandler {
-    private readonly debug;
-    private readonly filesystemCache;
-    private readonly keyPrefix;
-    private readonly kvStore?;
-    private readonly kvStoreRolloutPercent;
-    private readonly isBuild;
-    private readonly buildID;
-    constructor(ctx: FileSystemCacheContext);
-    get(...args: Parameters<CacheHandler$1['get']>): Promise<any>;
-    set(...args: Parameters<CacheHandler$1['set']>): Promise<void>;
-    revalidateTag(...args: Parameters<CacheHandler$1['revalidateTag']>): Promise<void>;
-    private generateKey;
-    private getErrorMessage;
-    private debugLog;
+interface AtlasConfig extends Record<string, any> {
     /**
-     * Should the KV Store be used for this key?
+     * If set to `false`, the Atlas remote cache handler will not be added (defaults to true)
      */
-    private useKVStore;
+    remoteCacheHandler?: boolean;
 }
+/**
+ * Add Atlas options to the config to be exported from the user's Next.js config file
+ * @param nextConfig
+ * @param atlasConfig
+ * @returns The modified config
+ */
+declare function withAtlasConfig(nextConfig: NextConfig, atlasConfig?: AtlasConfig): NextConfig;
 
-export { CacheHandler as default };
+export { type AtlasConfig, withAtlasConfig };
