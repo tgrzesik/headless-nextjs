@@ -35,11 +35,23 @@ function setCacheHandler(nextConfig, nextVersion, cacheHandlerPath) {
   }
   if (compare(nextVersion, "14.1.0") === -1) {
     nextConfig.experimental = nextConfig.experimental ?? {};
+    if (nextConfig.experimental.incrementalCacheHandlerPath !== void 0) {
+      console.warn("Overwriting existing incrementalCacheHandlerPath config");
+    }
     nextConfig.experimental.incrementalCacheHandlerPath = cacheHandlerPath;
+    if (nextConfig.experimental.isrMemoryCacheSize !== void 0) {
+      console.warn("Overwriting existing isrMemoryCacheSize config");
+    }
     nextConfig.experimental.isrMemoryCacheSize = 0;
     return nextConfig;
   }
+  if (nextConfig.cacheHandler !== void 0) {
+    console.warn("Overwriting existing cacheHandler config");
+  }
   nextConfig.cacheHandler = cacheHandlerPath;
+  if (nextConfig.cacheMaxMemorySize !== void 0) {
+    console.warn("Overwriting existing cacheMaxMemorySize config");
+  }
   nextConfig.cacheMaxMemorySize = 0;
   return nextConfig;
 }

@@ -67,7 +67,7 @@ var KV = class {
   selfSignedAgent;
   // The atlas-next package version will be injected from package.json
   // at build time by esbuild-plugin-version-injector
-  version = "1.0.0-beta.0";
+  version = "1.0.0-beta.1";
   static isAvailable() {
     const urlExists = (process.env.ATLAS_KV_STORE_URL ?? "") !== "";
     const tokenExists = (process.env.ATLAS_KV_STORE_TOKEN ?? "") !== "";
