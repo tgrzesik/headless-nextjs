@@ -15,7 +15,7 @@
     "next": ">= 13"
   },
   "engines": {
-    "node": ">= 16"
+    "node": ">= 16  < 17"
   },
   "packageManager": "inpm@8.0.0",
   "devDependencies": {
