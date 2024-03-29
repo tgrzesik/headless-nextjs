@@ -22,6 +22,10 @@ const nextConfig = {
             },
           ],
         },
+        {
+          source: '/sample-odisr-rewrite',
+          destination: '/sample-odisr',
+        },
         // {
         //   source: '/:first/:second',
         //   destination: '/:first?second=:second',
