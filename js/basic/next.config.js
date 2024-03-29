@@ -8,6 +8,10 @@ const nextConfig = {
   async rewrites() {
     return {
       beforeFiles: [
+        {
+          source: '/before',
+          destination: '/sample-isr/12',
+        },
         // These rewrites are checked after headers/redirects
         // and before all files including _next/public files which
         // allows overriding page files
