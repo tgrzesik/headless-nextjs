@@ -15,6 +15,10 @@ export default function Page() {
           revalidated page.
         </li>
         <li>Note that the fetch cache can be persisted across builds.</li>
+        <li>For on demand regenerating the pages run the following:</li>
+        <li>all pages: $ curl -gIL 'http://localhost:8080/api/revalidate-app?path=/isr/[id]'</li>
+        <li>specific page: $ curl -gIL 'http://localhost:8080/api/revalidate-app?path=/isr/3'</li>
+        <li>by tag: $ curl -IL http://localhost:8080/api/revalidate-app\?collection\=collection</li>
       </ul>
 
       <div className="flex gap-2">
