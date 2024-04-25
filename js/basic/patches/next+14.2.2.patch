@@ -1,0 +1,43 @@
+diff --git a/node_modules/next/dist/server/base-server.js b/node_modules/next/dist/server/base-server.js
+index a6577a6..fd4f630 100644
+--- a/node_modules/next/dist/server/base-server.js
++++ b/node_modules/next/dist/server/base-server.js
+@@ -1720,7 +1720,7 @@ class Server {
+             const headers = {
+                 ...cachedData.headers
+             };
+-            if (!(this.minimalMode && isSSG)) {
++            if (!isSSG) {
+                 delete headers[_constants2.NEXT_CACHE_TAGS_HEADER];
+             }
+             await (0, _sendresponse.sendResponse)(req, res, new Response(cachedData.body, {
+@@ -1739,7 +1739,7 @@ class Server {
+                 const headers = {
+                     ...cachedData.headers
+                 };
+-                if (!this.minimalMode || !isSSG) {
++                if (!isSSG) {
+                     delete headers[_constants2.NEXT_CACHE_TAGS_HEADER];
+                 }
+                 for (let [key, value] of Object.entries(headers)){
+@@ -1756,7 +1756,7 @@ class Server {
+                     }
+                 }
+             }
+-            if (this.minimalMode && isSSG && ((_cachedData_headers = cachedData.headers) == null ? void 0 : _cachedData_headers[_constants2.NEXT_CACHE_TAGS_HEADER])) {
++            if (isSSG && ((_cachedData_headers = cachedData.headers) == null ? void 0 : _cachedData_headers[_constants2.NEXT_CACHE_TAGS_HEADER])) {
+                 res.setHeader(_constants2.NEXT_CACHE_TAGS_HEADER, cachedData.headers[_constants2.NEXT_CACHE_TAGS_HEADER]);
+             }
+             // If the request is a data request, then we shouldn't set the status code
+diff --git a/node_modules/next/dist/server/next.js b/node_modules/next/dist/server/next.js
+index f570f6d..4934b11 100644
+--- a/node_modules/next/dist/server/next.js
++++ b/node_modules/next/dist/server/next.js
+@@ -101,6 +101,7 @@ class NextServer {
+         return async (req, res, parsedUrl)=>{
+             return (0, _tracer.getTracer)().trace(_constants2.NextServerSpan.getRequestHandler, async ()=>{
+                 const requestHandler = await this.getServerRequestHandler();
++                res.setHeader("cache-tag", req.headers['x-invoke-path']);
+                 return requestHandler(req, res, parsedUrl);
+             });
+         };
