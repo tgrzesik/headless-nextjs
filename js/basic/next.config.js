@@ -1,8 +1,8 @@
+const { withAtlasConfig } = require("@wpengine/atlas-next")
+
 /**
  * @type {import('next').NextConfig}
  */
-const { withAtlasConfig } = require("@wpengine/atlas-next")
-
 const nextConfig = {
   // output: 'standalone',
   async rewrites() {
@@ -66,7 +66,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/foo',
+        source: '/sample-odisr',
         headers: [
           {
             key: 'x-foo',
@@ -75,6 +75,10 @@ const nextConfig = {
           {
             key: 'x-bar',
             value: 'some-bar',
+          },
+          {
+            key: 'x-nextjs-cache-stale',
+            value: 'STALE',
           },
         ],
       },
