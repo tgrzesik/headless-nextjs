@@ -13,6 +13,7 @@ export default function Home({generated, draftMode}) {
             (ISR) Server Side Generated page
         </h1>
         <p>Revalidated every 28 seconds, last revalidate: {generated} (DraftMode: {draftMode})</p>
+        <p>Version 2</p>
       </main>
     </div>
   )
