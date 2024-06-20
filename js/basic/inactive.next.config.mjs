@@ -1,17 +1,13 @@
-const { withAtlasConfig } = require("@wpengine/atlas-next")
-
 /**
  * @type {import('next').NextConfig}
  */
+import { withAtlasConfig } from "@wpengine/atlas-next"
+
 const nextConfig = {
   // output: 'standalone',
   async rewrites() {
     return {
       beforeFiles: [
-        {
-          source: '/before',
-          destination: '/sample-isr/12',
-        },
         // These rewrites are checked after headers/redirects
         // and before all files including _next/public files which
         // allows overriding page files
@@ -25,10 +21,6 @@ const nextConfig = {
               value: '(?<one>.*)',
             },
           ],
-        },
-        {
-          source: '/sample-odisr-rewrite',
-          destination: '/sample-odisr',
         },
         // {
         //   source: '/:first/:second',
@@ -66,7 +58,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/sample-odisr',
+        source: '/foo',
         headers: [
           {
             key: 'x-foo',
@@ -76,14 +68,10 @@ const nextConfig = {
             key: 'x-bar',
             value: 'some-bar',
           },
-          {
-            key: 'x-nextjs-cache-stale',
-            value: 'STALE',
-          },
         ],
       },
     ]
-  }
+  },
 }
 
-module.exports = withAtlasConfig(nextConfig, {})
+export default withAtlasConfig(nextConfig, {})

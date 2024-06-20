@@ -5,25 +5,19 @@ export default function Home({generated, draftMode}) {
   return (
     <div className="container">
       <Head>
-        <title>ISR</title>
+        <title>ISR Static 2</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
         <h1 className="title">
-            (ISR) Server Side Generated page
+            (ISR) Server Side Generated page - Sample 2
         </h1>
         <p>Revalidated every 28 seconds, last revalidate: {generated} (DraftMode: {draftMode})</p>
-        <p>Version 2</p>
 
         <Link href="/sample-static" className="card">
           <h3>ISR &rarr;</h3>
           <p>Static Incremental static regeneration page.</p>
-        </Link>
-        <p>Version 2</p>
-
-        <Link href="/sample-isr/sample-static2" className="card">
-          <p>Sample Static 2</p>
         </Link>
 
       </main>

@@ -1,0 +1,27 @@
+diff --git a/node_modules/next/dist/server/base-server.js b/node_modules/next/dist/server/base-server.js
+index a6577a6..7517512 100644
+--- a/node_modules/next/dist/server/base-server.js
++++ b/node_modules/next/dist/server/base-server.js
+@@ -1756,8 +1756,8 @@ class Server {
+                     }
+                 }
+             }
+-            if (this.minimalMode && isSSG && ((_cachedData_headers = cachedData.headers) == null ? void 0 : _cachedData_headers[_constants2.NEXT_CACHE_TAGS_HEADER])) {
+-                res.setHeader(_constants2.NEXT_CACHE_TAGS_HEADER, cachedData.headers[_constants2.NEXT_CACHE_TAGS_HEADER]);
++            if (isSSG && ((_cachedData_headers = cachedData.headers) == null ? void 0 : _cachedData_headers[_constants2.NEXT_CACHE_TAGS_HEADER])) {
++                res.setHeader('Cache-Tag', cachedData.headers[_constants2.NEXT_CACHE_TAGS_HEADER]);
+             }
+             // If the request is a data request, then we shouldn't set the status code
+             // from the response because it should always be 200. This should be gated
+diff --git a/node_modules/next/dist/server/lib/router-server.js b/node_modules/next/dist/server/lib/router-server.js
+index 9387655..c97a37c 100644
+--- a/node_modules/next/dist/server/lib/router-server.js
++++ b/node_modules/next/dist/server/lib/router-server.js
+@@ -165,6 +165,7 @@ async function initialize(opts) {
+                 "x-invoke-query": encodeURIComponent(JSON.stringify(parsedUrl.query)),
+                 ...additionalInvokeHeaders || {}
+             };
++            res.setHeader('Cache-Tag', invokePath);
+             Object.assign(req.headers, invokeHeaders);
+             debug("invokeRender", req.url, invokeHeaders);
+             try {
