@@ -50,6 +50,14 @@ export default async function Home() {
       </div>
 
       <div className={styles.grid}>
+        <Link href="/app-router/dynamic" className={styles.card}>
+          <h2>
+          Dynamic<span>-&gt;</span>
+          </h2>
+        </Link>
+      </div>
+
+      <div className={styles.grid}>
       <h2>
           {data[0].name}
         </h2>
