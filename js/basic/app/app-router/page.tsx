@@ -22,20 +22,6 @@ export default async function Home() {
           priority
         />
       </div>
-
-      <div className={styles.grid}>
-        <Link href="/app-router/dynamic" className={styles.card}>
-          <h2>
-            Dynamic <span>-&gt;</span>
-          </h2>
-        </Link>
-
-        <Link href="/app-router/dynamic" className={styles.card}>
-          <h2>
-            Static <span>-&gt;</span>
-          </h2>
-        </Link>
-      </div>
     </main>
   )
 }
