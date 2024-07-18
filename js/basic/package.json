@@ -17,7 +17,7 @@
     "react-dom": "^18.2.0"
   },
   "engines": {
-    "node": "21.7.3"
+    "node": "22.0.0"
   },
   "packageManager": "inpm@8.0.0",
   "devDependencies": {
