@@ -55,9 +55,9 @@ var APINotFoundError = class extends Error {
 var API = class {
   // The atlas-next package version will be injected from package.json
   // at build time by esbuild-plugin-version-injector
-  version = "1.3.0-beta";
+  version = "1.4.1";
   constructor() {
-    if (process.env.ATLAS_METADATA !== "true") {
+    if (process.env.HEADLESS_METADATA !== "true") {
       throw new Error("API: The app is not running on the Atlas Platform");
     }
   }
@@ -81,23 +81,23 @@ var KV = class extends API {
   token;
   url;
   static isAvailable() {
-    const urlExists = (process.env.ATLAS_KV_STORE_URL ?? "") !== "";
-    const tokenExists = (process.env.ATLAS_KV_STORE_TOKEN ?? "") !== "";
-    const atlasRuntime = String(process.env.ATLAS_METADATA).toLowerCase() === "true";
+    const urlExists = (process.env.HEADLESS_KV_STORE_URL ?? "") !== "";
+    const tokenExists = (process.env.HEADLESS_KV_STORE_TOKEN ?? "") !== "";
+    const atlasRuntime = String(process.env.HEADLESS_METADATA).toLowerCase() === "true";
     return urlExists && tokenExists && atlasRuntime;
   }
   constructor() {
     super();
-    if (process.env.ATLAS_METADATA !== "true") {
+    if (process.env.HEADLESS_METADATA !== "true") {
       throw new Error("KV: The app is not running on the Atlas Platform");
     }
-    this.url = process.env.ATLAS_KV_STORE_URL ?? "";
+    this.url = process.env.HEADLESS_KV_STORE_URL ?? "";
     if (this.url === "") {
-      throw new Error("KV: ATLAS_KV_STORE_URL env var is missing");
+      throw new Error("KV: HEADLESS_KV_STORE_URL env var is missing");
     }
-    this.token = process.env.ATLAS_KV_STORE_TOKEN ?? "";
+    this.token = process.env.HEADLESS_KV_STORE_TOKEN ?? "";
     if (this.token === "") {
-      throw new Error("KV: ATLAS_KV_STORE_TOKEN env var is missing");
+      throw new Error("KV: HEADLESS_KV_STORE_TOKEN env var is missing");
     }
   }
   async get(key) {
@@ -173,17 +173,25 @@ function setCacheHandler(nextConfig, nextVersion, cacheHandlerPath) {
     }
     nextConfig.cacheMaxMemorySize = 0;
   }
-  printEnabledNotice();
+  let odisrSupported = true;
+  if (compare(nextVersion, "13.5.1") === -1) {
+    odisrSupported = false;
+  }
+  printStartupNotice(odisrSupported);
   return nextConfig;
 }
-function printEnabledNotice() {
-  if (process.env.ATLAS_CACHE_HANDLER_MESSAGE === void 0) {
+function printStartupNotice(odisrSupported) {
+  if (process.env.HEADLESS_CACHE_HANDLER_STARTUP === void 0) {
     let message = "Atlas remote cache handler enabled";
-    if (process.env.ATLAS_METADATA_BUILD === void 0 && !KV.isAvailable()) {
+    if (process.env.HEADLESS_METADATA_BUILD === void 0 && !KV.isAvailable()) {
       message = message + " (local storage mode)";
     }
+    message = message + "\n";
+    if (!odisrSupported) {
+      message = message + "warn - For On-Demand Revalidation support upgrade to Next.js 13.5.1 or higher\n";
+    }
     console.log(message);
-    process.env.ATLAS_CACHE_HANDLER_MESSAGE = "true";
+    process.env.HEADLESS_CACHE_HANDLER_STARTUP = "true";
   }
 }
 function compare(v1, v2) {

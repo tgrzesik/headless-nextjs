@@ -1,22 +1,6 @@
 import { Response } from 'node-fetch';
 
-declare abstract class API {
-    protected readonly version: string;
-    constructor();
-    /**
-     * Convert response status codes to API errors and throw them
-     * @param response
-     * @param key
-     */
-    protected throwResponseErrors(response: Response, key: string): void;
-}
-
-declare class EdgeCache extends API {
-    private readonly url;
-    private readonly token;
-    private readonly envuuid;
-    static isAvailable(): boolean;
-    constructor();
+declare class EdgeCache {
     /**
      * Purge the edge cache by tags
      * @param string[]
@@ -27,6 +11,17 @@ declare class EdgeCache extends API {
      * @param string[]
      */
     purgeByPaths(paths: string[]): Promise<any>;
+}
+
+declare abstract class API {
+    protected readonly version: string;
+    constructor();
+    /**
+     * Convert response status codes to API errors and throw them
+     * @param response
+     * @param key
+     */
+    protected throwResponseErrors(response: Response, key: string): void;
 }
 
 declare class KV extends API {

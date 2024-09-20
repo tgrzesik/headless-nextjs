@@ -29,9 +29,9 @@ var APINotFoundError = class extends Error {
 var API = class {
   // The atlas-next package version will be injected from package.json
   // at build time by esbuild-plugin-version-injector
-  version = "1.3.0-beta";
+  version = "1.4.1";
   constructor() {
-    if (process.env.ATLAS_METADATA !== "true") {
+    if (process.env.HEADLESS_METADATA !== "true") {
       throw new Error("API: The app is not running on the Atlas Platform");
     }
   }
@@ -55,23 +55,23 @@ var KV = class extends API {
   token;
   url;
   static isAvailable() {
-    const urlExists = (process.env.ATLAS_KV_STORE_URL ?? "") !== "";
-    const tokenExists = (process.env.ATLAS_KV_STORE_TOKEN ?? "") !== "";
-    const atlasRuntime = String(process.env.ATLAS_METADATA).toLowerCase() === "true";
+    const urlExists = (process.env.HEADLESS_KV_STORE_URL ?? "") !== "";
+    const tokenExists = (process.env.HEADLESS_KV_STORE_TOKEN ?? "") !== "";
+    const atlasRuntime = String(process.env.HEADLESS_METADATA).toLowerCase() === "true";
     return urlExists && tokenExists && atlasRuntime;
   }
   constructor() {
     super();
-    if (process.env.ATLAS_METADATA !== "true") {
+    if (process.env.HEADLESS_METADATA !== "true") {
       throw new Error("KV: The app is not running on the Atlas Platform");
     }
-    this.url = process.env.ATLAS_KV_STORE_URL ?? "";
+    this.url = process.env.HEADLESS_KV_STORE_URL ?? "";
     if (this.url === "") {
-      throw new Error("KV: ATLAS_KV_STORE_URL env var is missing");
+      throw new Error("KV: HEADLESS_KV_STORE_URL env var is missing");
     }
-    this.token = process.env.ATLAS_KV_STORE_TOKEN ?? "";
+    this.token = process.env.HEADLESS_KV_STORE_TOKEN ?? "";
     if (this.token === "") {
-      throw new Error("KV: ATLAS_KV_STORE_TOKEN env var is missing");
+      throw new Error("KV: HEADLESS_KV_STORE_TOKEN env var is missing");
     }
   }
   async get(key) {
@@ -102,66 +102,29 @@ var KV = class extends API {
 };
 
 // src/api/edgeCache.ts
-import fetch2 from "node-fetch";
-var EdgeCache = class extends API {
-  url;
-  token;
-  envuuid;
-  static isAvailable() {
-    const urlExists = (process.env.ATLAS_APPS_API_URL_ADDRESS ?? "") !== "";
-    const tokenExists = (process.env.ATLAS_APPS_API_TOKEN ?? "") !== "";
-    const atlasRuntime = String(process.env.ATLAS_METADATA).toLowerCase() === "true";
-    return urlExists && tokenExists && atlasRuntime;
-  }
-  constructor() {
-    super();
-    this.url = process.env.ATLAS_APPS_API_URL_ADDRESS ?? "";
-    if (this.url === "") {
-      throw new Error(
-        "EdgeCache: ATLAS_APPS_API_URL_ADDRESS env var is missing"
-      );
-    }
-    this.token = process.env.ATLAS_APPS_API_TOKEN ?? "";
-    if (this.token === "") {
-      throw new Error("EdgeCache: ATLAS_APPS_API_TOKEN env var is missing");
-    }
-    this.envuuid = process.env.ATLAS_METADATA_ENV_ID ?? "";
-    if (this.envuuid === "") {
-      throw new Error("EdgeCache: ATLAS_METADATA_ENV_ID env var is missing");
-    }
-  }
+import { purgePaths, purgeTags } from "@wpengine/edge-cache";
+var EdgeCache = class {
   /**
    * Purge the edge cache by tags
    * @param string[]
    */
   async purgeByTags(tags) {
-    const response = await fetch2(
-      `${this.url}/envs/${this.envuuid}/edge/cache/tags:purge`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.token}`,
-          "User-Agent": `AtlasNext/${this.version}`
-        },
-        body: JSON.stringify({ tags })
-      }
-    );
-    this.throwResponseErrors(response, tags.join(","));
+    await purgeTags(tags);
   }
   /**
    * Purge the edge cache by paths
    * @param string[]
    */
   async purgeByPaths(paths) {
-    await this.purgeByTags(paths);
+    await purgePaths(paths);
   }
 };
 
 // src/cache-handler/remoteCacheHandler.ts
 import { promises as fs } from "fs";
+import { denormalizePagePath } from "next/dist/shared/lib/page-path/denormalize-page-path";
 import { normalizePagePath } from "next/dist/shared/lib/page-path/normalize-page-path";
-var RemoteCacheHandler = class {
+var RemoteCacheHandler = class _RemoteCacheHandler {
   debug;
   filesystemCache;
   keyPrefix = ".atlas";
@@ -170,12 +133,18 @@ var RemoteCacheHandler = class {
   kvStoreRolloutPercent;
   isBuild;
   buildID;
+  previewModeId;
   nextBuildID;
+  prerenderManifestPath = ".next/prerender-manifest.json";
+  // eslint-disable-line @typescript-eslint/prefer-readonly
+  buildIDPath = ".next/BUILD_ID";
+  // eslint-disable-line @typescript-eslint/prefer-readonly
+  static minISRCacheRevalidateSeconds = 10;
   constructor(ctx) {
     this.filesystemCache = new FileSystemCache(ctx);
-    this.debug = String(process.env.ATLAS_CACHE_HANDLER_DEBUG).toLowerCase() === "true";
-    this.isBuild = String(process.env.ATLAS_METADATA_BUILD).toLowerCase() === "true";
-    this.buildID = process.env.ATLAS_METADATA_BUILD_ID ?? "";
+    this.debug = String(process.env.ATLAS_CACHE_HANDLER_DEBUG).toLowerCase() === "true" || String(process.env.HEADLESS_CACHE_HANDLER_DEBUG).toLowerCase() === "true";
+    this.isBuild = String(process.env.HEADLESS_METADATA_BUILD).toLowerCase() === "true";
+    this.buildID = process.env.HEADLESS_METADATA_BUILD_ID ?? "";
     if (this.isKVStoreAvailable()) {
       try {
         this.kvStore = new KV();
@@ -184,18 +153,22 @@ var RemoteCacheHandler = class {
         console.error(this.getErrorMessage(error));
       }
     }
-    if (this.isEdgeCacheAvailable()) {
-      try {
-        this.edgeCache = new EdgeCache();
-        this.debugLog("Edge Cache enabled");
-      } catch (error) {
-        console.error(this.getErrorMessage(error));
-      }
+    try {
+      this.edgeCache = new EdgeCache();
+      this.debugLog("Edge Cache enabled");
+    } catch (error) {
+      console.error(this.getErrorMessage(error));
     }
     const defaultPercent = 100;
-    const percentEnv = process.env.ATLAS_CACHE_HANDLER_ROLLOUT_PERCENT ?? "";
+    const percentEnv = process.env.HEADLESS_CACHE_HANDLER_ROLLOUT_PERCENT ?? "";
     const percentEnvNum = parseInt(percentEnv, 10);
     this.kvStoreRolloutPercent = isNaN(percentEnvNum) ? defaultPercent : percentEnvNum;
+    const xPrerenderRevalidate = ctx?._requestHeaders?.["x-prerender-revalidate"];
+    if (Array.isArray(xPrerenderRevalidate)) {
+      this.previewModeId = xPrerenderRevalidate.pop();
+    } else {
+      this.previewModeId = xPrerenderRevalidate;
+    }
   }
   async get(...args) {
     const [key, ctx = {}] = args;
@@ -237,17 +210,6 @@ var RemoteCacheHandler = class {
       this.debugLog(`SET <kind:> ${key} (skip remote cache, data is null)`);
       return;
     }
-    try {
-      if (data.kind === "PAGE" && (ctx.revalidate === void 0 || ctx.revalidate === false)) {
-        const dataPath = await this.pathToDataPath(key);
-        this.debugLog(
-          `ODISR for Page Router revalidated, purging paths: ${key} and ${dataPath}`
-        );
-        await this.edgeCache?.purgeByPaths([key, dataPath]);
-      }
-    } catch (error) {
-      console.error(this.getErrorMessage(error));
-    }
     const cacheEntry = {
       lastModified: Date.now(),
       value: data
@@ -260,6 +222,17 @@ var RemoteCacheHandler = class {
       console.error(this.getErrorMessage(error));
     }
     await this.filesystemCache.set(...args);
+    try {
+      if (data.kind === "PAGE" && await this.isOnDemand(ctx)) {
+        const paths = await this.cacheKeyToPaths(key);
+        this.debugLog(
+          `ODISR for Page Router revalidated, purging paths: ${paths.join(" ")}`
+        );
+        await this.edgeCache?.purgeByPaths(paths);
+      }
+    } catch (error) {
+      console.error(this.getErrorMessage(error));
+    }
   }
   async revalidateTag(...args) {
     const [tag] = args;
@@ -291,7 +264,7 @@ var RemoteCacheHandler = class {
     }
     if (this.buildID === "") {
       console.log(
-        "Warning: ATLAS_METADATA_BUILD_ID is missing, remote cache disabled"
+        "Warning: HEADLESS_METADATA_BUILD_ID is missing, remote cache disabled"
       );
       return false;
     }
@@ -313,31 +286,53 @@ var RemoteCacheHandler = class {
     return isRolledOut(key, this.kvStoreRolloutPercent);
   }
   /**
-   * Is the Edge Cache available for use?
+   * Takes a cache key and returns the URL paths
+   * @param key cache key
+   * @returns array of URL paths
    */
-  isEdgeCacheAvailable() {
-    if (this.isBuild) {
-      return false;
-    }
-    if (!EdgeCache.isAvailable()) {
-      return false;
-    }
-    return true;
-  }
-  async pathToDataPath(path) {
+  async cacheKeyToPaths(key) {
     if (this.nextBuildID === void 0) {
-      const buildIDPath = ".next/BUILD_ID";
       try {
-        await fs.access(buildIDPath);
-        this.nextBuildID = (await fs.readFile(buildIDPath, "utf-8")).trim();
+        await fs.access(this.buildIDPath);
+        this.nextBuildID = (await fs.readFile(this.buildIDPath, "utf-8")).trim();
       } catch (error) {
         console.error("BUILD_ID file not found, cannot purge data path");
         throw error;
       }
     }
-    const pagePath = normalizePagePath(path);
-    const dataRoute = `/_next/data/${this.nextBuildID}${pagePath}.json`;
-    return dataRoute;
+    const pagePath = denormalizePagePath(key);
+    const dataPath = `/_next/data/${this.nextBuildID}${normalizePagePath(pagePath)}.json`;
+    return [pagePath, dataPath];
+  }
+  /**
+   * Check if the cache set if being triggered on-demand
+   * @param ctx CacheHandler.set context
+   * @returns
+   */
+  async isOnDemand(ctx) {
+    if (ctx === void 0) {
+      return false;
+    }
+    if (ctx.revalidate === void 0 || ctx.revalidate === false) {
+      return true;
+    }
+    if (ctx.revalidate < _RemoteCacheHandler.minISRCacheRevalidateSeconds) {
+      return false;
+    }
+    if (this.previewModeId !== void 0) {
+      try {
+        await fs.access(this.prerenderManifestPath);
+        const manifest = JSON.parse(
+          await fs.readFile(this.prerenderManifestPath, "utf8")
+        );
+        if (this.previewModeId === manifest.preview.previewModeId) {
+          return true;
+        }
+      } catch (error) {
+        console.error("Could not get preview mode ID", error);
+      }
+    }
+    return false;
   }
 };
 
