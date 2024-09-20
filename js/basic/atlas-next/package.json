@@ -1,6 +1,6 @@
 {
   "name": "@wpengine/atlas-next",
-  "version": "1.0.0-beta.0",
+  "version": "1.4.1",
   "description": "Improved Next.js support on WP Engine Atlas",
   "author": "WP Engine",
   "license": "MIT",
@@ -19,14 +19,24 @@
       "require": "./dist/cache-handler/index.js",
       "import": "./dist/cache-handler/index.js",
       "module": "./dist/cache-handler/index.mjs"
+    },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "require": "./dist/api/index.js",
+      "import": "./dist/api/index.js",
+      "module": "./dist/api/index.mjs"
     }
   },
   "scripts": {
     "build": "tsup",
+    "build:watch": "tsup --watch",
     "ci:lint": "eslint ./",
     "ci:test": "nyc --reporter=text --reporter=text-summary npm test",
+    "ci:publish": "node ./scripts/publish.mjs",
     "dev": "tsup --watch",
     "lint": "eslint --fix ./",
+    "prepack": "npm run build",
+    "prepublishOnly": "node ./scripts/prepublishOnly.mjs",
     "test": "mocha",
     "test:coverage": "nyc --reporter=lcovonly --reporter=html --reporter=text --reporter=text-summary npm test"
   },
@@ -50,6 +60,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
+    "semver": "^7.6.0",
     "sinon": "^17.0.1",
     "ts-node": "^10.9.1",
     "tsup": "^8.0.1",
@@ -61,5 +72,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@wpengine/edge-cache": "^1.2.0"
   }
 }
