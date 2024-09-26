@@ -1,8 +1,12 @@
 import { purgePaths } from '@wpengine/edge-cache';
 
-try {
-    const paths = ['/sample-odisr']
-    await purgePaths(paths)
-} catch (error) {
-    console.error(error)
+
+export default async function handler(req, res) {
+    try {
+        const paths = ['/sample-odisr']
+        await purgePaths(paths)
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send('Error purging paths')
+    }
 }
